@@ -2,6 +2,8 @@ package com.remo.TestLayer;
 
 import static org.testng.Assert.assertTrue;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -40,11 +42,12 @@ public class ReportsTest extends BaseTest {
 
 	}
 
-	// @Test(priority =3)
+	@Test(priority = 3)
 	public void verifyTotalsSummaryReportFunctionality() {
 		test = extent.createTest("Verify functionality of totals summary report");
-		reportsP.navigateTo_TotalsSummaryReport();
+		reportsP.navigateToTotalsSummary();
 		SoftAssert a = new SoftAssert();
+
 		a.assertTrue(reportsP.verifyFilterByMonth());
 		a.assertTrue(reportsP.verifyFilterByDay());
 		a.assertTrue(reportsP.VerifyFilterByDateRange("dateRange"));
@@ -54,6 +57,8 @@ public class ReportsTest extends BaseTest {
 		a.assertAll();
 
 	}
+
+
 
 	// // @Test(priority =4)
 	// public void verifySettledBatchesReportFunctionality() {

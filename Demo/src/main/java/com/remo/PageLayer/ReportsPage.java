@@ -270,597 +270,6 @@ public class ReportsPage extends BaseClass {
 	}
 
 	/**
-	 * Verifies the functionality of clearing filters for the 'Total Summary'
-	 * section. Clicks on the clear filter button and verifies if the filter
-	 * settings are reset to default values: - 'Filter By' dropdown should default
-	 * to 'By Month' - Month dropdown should default to the current month - Year
-	 * dropdown should default to the current year
-	 *
-	 * @return true if all filter settings are reset to default values after
-	 *         clicking clear filter;else false.
-	 */
-	public boolean verifyClearFilterFunctionalityForTotalSummary() {
-		try {
-			clickOnClearFilterButton();
-
-			boolean defaultFilterBy = util.getSelectedOption(driver, filterByDropdown).getText()
-					.equalsIgnoreCase("By Month");
-			boolean isDefaultMonthSelected = util.getSelectedOption(driver, monthDropdown).getAttribute("value")
-					.equals(util.getCurrentMonthNum());
-			boolean isDefaultYearSelected = util.getSelectedOption(driver, yearDropdown).getText()
-					.equals(util.getCurrentYear());
-
-			if (defaultFilterBy) {
-				test.log(Status.PASS,
-						" 'Clear Filter' functionality changes the 'Filter By' dropdown to default option : 'By Month'.");
-
-				if (isDefaultMonthSelected & isDefaultYearSelected) {
-					// test.log(Status.PASS, " 'Clear Filter' functionality changes the filter
-					// options to 'Current Month' and 'Current Year'");
-					return true;
-				} else {
-					test.log(Status.FAIL,
-							" 'Clear Filter' functionality dose not change the filter options to 'Current Month' and 'Current Year'");
-					return false;
-				}
-			} else {
-				test.log(Status.FAIL,
-						" 'Clear Filter' functionality dose not change the Filter By option to default option 'By Month'.");
-				return false;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			test.log(Status.FAIL, " Failed to perform 'Clear filter' functionality");
-			return false;
-		}
-
-	}
-
-	/**
-	 * Verifies the functionality of clearing filters for 'Settled Batches' section.
-	 * Clicks on the clear filter button and verifies if the filter settings are
-	 * reset to default values: - 'Filter By' dropdown should default to 'By Month'
-	 * - Month dropdown should default to the current month - Year dropdown should
-	 * default to the current year - Date Type dropdown should default to 'Funded
-	 * Date'
-	 *
-	 * @return true if all filter settings are reset to default values after
-	 *         clicking clear filter;else false.
-	 */
-
-	public boolean verifyClearFilterFunctionalityForSettledBatches() {
-		try {
-			clickOnClearFilterButton();
-
-			boolean defaultFilterBy = util.getSelectedOption(driver, filterByDropdown).getText()
-					.equalsIgnoreCase("By Month");
-			boolean isDefaultMonthSelected = util.getSelectedOption(driver, monthDropdown).getAttribute("value")
-					.equals(util.getCurrentMonthNum());
-			boolean isDefaultYearSelected = util.getSelectedOption(driver, yearDropdown).getText()
-					.equals(util.getCurrentYear());
-
-			boolean isDefaultDateTypeSelected = util.getSelectedOption(driver, dateTypeDropdown).getText()
-					.equalsIgnoreCase("Funded Date");
-			if (isDefaultDateTypeSelected & defaultFilterBy) {
-				test.log(Status.PASS,
-						" 'Clear Filter' functionality changes the Date Type and Filter By options to default 'Funded Date' and 'By Month' options respectively");
-
-				if (isDefaultMonthSelected & isDefaultYearSelected) {
-					test.log(Status.PASS,
-							" 'Clear Filter' functionality changes the filter options to 'Current Month' and 'Current Year'");
-					return true;
-				} else {
-					test.log(Status.FAIL,
-							" 'Clear Filter' functionality dose not change the filter options to 'Current Month' and 'Current Year'");
-					return false;
-				}
-			} else {
-				test.log(Status.FAIL,
-						" 'Clear Filter' functionality dose not change the Filter By option to default option 'By Month'.");
-				return false;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			test.log(Status.FAIL, " Failed to verify 'Clear filter' functionality");
-			return false;
-		}
-
-	}
-
-	/**
-	 * Verifies the functionality of clearing filters for 'ACH' section. Clicks on
-	 * the clear filter button and verifies if the filter settings are reset to
-	 * default values: - 'Filter By' dropdown should default to 'By Month' -
-	 * Transaction Code dropdown should default to 'Select Tran Code' - Month
-	 * dropdown should default to the current month - Year dropdown should default
-	 * to the current year - Amount field should be empty
-	 *
-	 * @return true if all filter settings are reset to default values after
-	 *         clicking clear filter;else false.
-	 */
-	public boolean verifyClearFilterFunctionalityForACH() {
-		try {
-			clickOnClearFilterButton();
-
-			boolean defaultFilterBy = util.getSelectedOption(driver, filterByDropdown).getText()
-					.equalsIgnoreCase("By Month");
-			boolean isDefaultTransCodeSelected = util.getSelectedOption(driver, transCodeDropdown).getText()
-					.equalsIgnoreCase("Select Tran Code");
-			boolean isDefaultMonthSelected = util.getSelectedOption(driver, monthDropdown).getAttribute("value")
-					.equals(util.getCurrentMonthNum());
-			boolean isDefaultYearSelected = util.getSelectedOption(driver, yearDropdown).getText()
-					.equals(util.getCurrentYear());
-
-			boolean isAmountEmpty = amount.getAttribute("value").equals("");
-
-			if (isDefaultTransCodeSelected & defaultFilterBy & isAmountEmpty) {
-				test.log(Status.PASS,
-						" 'Clear Filter' functionality change the options Filter By:'By Month', Trans Code: 'Select Trans code', amd Amount field is empty");
-
-				if (isDefaultMonthSelected & isDefaultYearSelected) {
-					test.log(Status.PASS,
-							" 'Clear Filter' functionality changes the filter options to 'Current Month' and 'Current Year'");
-					return true;
-				} else {
-					test.log(Status.FAIL,
-							" 'Clear Filter' functionality does not change the filter options to 'Current Month' and 'Current Year'");
-					return false;
-				}
-			} else {
-				test.log(Status.FAIL, " 'Clear Filter' functionality does not change to Default options");
-				return false;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			test.log(Status.FAIL, " Failed to perform 'Clear filter' functionality");
-			return false;
-		}
-
-	}
-
-	/**
-	 * Verifies the functionality of clearing filters for 'Search Transactions'
-	 * section. Clicks on the clear filter button and verifies if the filter
-	 * settings are reset to default values: - Month dropdown should default to the
-	 * current month - Year dropdown should default to the current year - Amount
-	 * field should be empty - Last 4 Digits of Card field should be empty -
-	 * Transaction Type dropdown should default to 'Select Action Code'
-	 *
-	 * @return true if all filter settings are reset to default values after
-	 *         clicking clear filter; else false.
-	 */
-	public boolean verifyClearFilterFunctionalityForSearchTransactions() {
-		try {
-			boolean result = false;
-			clickOnClearFilterButton();
-
-			boolean isDefaultMonthSelected = util.getSelectedOption(driver, monthDropdown).getAttribute("value")
-					.equals(util.getCurrentMonthNum());
-			boolean isDefaultYearSelected = util.getSelectedOption(driver, yearDropdown).getText()
-					.equals(util.getCurrentYear());
-
-			boolean isAmountEmpty = amount.getAttribute("value").equals("");
-			boolean isLast4DigitsOfCardEmpty = last4digitsOfCard.getAttribute("value").equals("");
-
-			boolean isDefaultTransTypeSelected = util.getSelectedOption(driver, transTypeDropdown).getText()
-					.equalsIgnoreCase("Select Action Code");
-			if (isDefaultMonthSelected & isDefaultYearSelected) {
-				test.log(Status.PASS,
-						" 'Clear Filter' functionality change the Month options to Current Month and Year to Current Year'");
-				result = true;
-			} else {
-				test.log(Status.FAIL,
-						" 'Clear Filter' functionality failed to change the Month options to Current Month and Year to Current Year'");
-				return false;
-			}
-
-			if (isDefaultTransTypeSelected & isLast4DigitsOfCardEmpty & isAmountEmpty) {
-				test.log(Status.PASS,
-						" 'Clear Filter' functionality change the options Trans Type to 'Select Action code', amd Amount field is empty");
-				result = true;
-
-			} else {
-				test.log(Status.FAIL, " 'Clear Filter' functionality dose not change to Default options");
-				return false;
-			}
-			if (result) {
-				return true;
-			} else {
-				return false;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			test.log(Status.FAIL, " Failed to perform 'Clear filter' functionality");
-			return false;
-		}
-
-	}
-
-	/**
-	 * Verifies the functionality of clearing filters for 'Merchant Statement'
-	 * section. Clicks on the clear filter button and verifies if the filter
-	 * settings are reset to default values: - Month dropdown should default to
-	 * 'Select Month' - Year dropdown should default to the current year
-	 *
-	 * @return true if the filter settings are reset to default values after
-	 *         clicking clear filter;else false.
-	 */
-
-	public boolean verifyClearFilterFunctionalityForMerchantStatement() {
-		try {
-			clickOnClearFilterButton();
-
-			boolean isDefaultMonthDropdownSelected = util.getSelectedOption(driver, monthDropdown).getText()
-					.equalsIgnoreCase("Select Month");
-			boolean isDefaultYearSelected = util.getSelectedOption(driver, yearDropdown).getText()
-					.equals(util.getCurrentYear());
-
-			if (isDefaultMonthDropdownSelected & isDefaultYearSelected) {
-				test.log(Status.PASS,
-						" 'Clear Filter' functionality change the Month options to Current Month and Year to Current Year'");
-				return true;
-			} else {
-				test.log(Status.FAIL,
-						" 'Clear Filter' functionality failed to change the Month options to Current Month and Year to Current Year'");
-				return false;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			test.log(Status.FAIL, " Failed to perform 'Clear filter' functionality");
-			return false;
-		}
-	}
-
-	/**
-	 * Verifies the functionality of clearing filters for 'ChargeBacks' section.
-	 * Clicks on the clear filter button and verifies if the filter settings are
-	 * reset to default values: - Year dropdown should default to the current year -
-	 * Last 4 digits of card field should be empty
-	 *
-	 * @return true if the filter settings are reset to default values after
-	 *         clicking clear filter; else false.
-	 */
-	public boolean verifyClearFilterFunctionalityForChargeBacks() {
-		try {
-			clickOnClearFilterButton();
-
-			boolean isDefaultYearSelected = util.getSelectedOption(driver, yearDropdown).getText()
-					.equals(util.getCurrentYear());
-
-			boolean isLast4DigitsOfCardEmpty = last4digitsOfCard.getAttribute("value").equals("");
-
-			if (isDefaultYearSelected & isLast4DigitsOfCardEmpty) {
-				test.log(Status.PASS,
-						" 'Clear Filter' functionality change the Year options to Current Year and Last 14 digits for card field to Empty'");
-				return true;
-			} else {
-				test.log(Status.FAIL,
-						" 'Clear Filter' functionality failed to change the Year options to Current Year and Last 14 digits for card field to Empty");
-				return false;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			test.log(Status.FAIL, " Failed to perform 'Clear filter' functionality");
-			return false;
-		}
-	}
-
-	/**
-	 * Verifies if the 'Download PDF' button is enabled.
-	 * 
-	 * @return true if the 'Download PDF' button is enabled; false otherwise.
-	 */
-	public boolean isDownloadPDFEnabled() {
-		try {
-			util.waitForVisibilityOfElement(driver, downloadPDFButton);
-			if (downloadPDFButton.isEnabled()) {
-				// test.log(Status.PASS, " Download PDF is Enabled");
-
-				return true;
-			} else {
-				test.log(Status.FAIL, "Download PDF is not Enabled");
-				return false;
-			}
-		} catch (Exception e) {
-			test.log(Status.FAIL, "Failed to verify Download PDF button");
-			return false;
-		}
-	}
-
-	/**
-	 * Verifies if the 'Download Excel' button is enabled.
-	 * 
-	 * @return true if the 'Download Excel' button is enabled; false otherwise.
-	 */
-	public boolean isDownloadExcelEnabled() {
-		try {
-			util.waitForVisibilityOfElement(driver, downloadExcelButton);
-			if (downloadExcelButton.isEnabled()) {
-				// test.log(Status.PASS, " Download Excel is Enabled");
-				return true;
-			} else {
-				test.log(Status.FAIL, "Download Excel is not Enabled");
-				return false;
-			}
-		} catch (Exception e) {
-			test.log(Status.FAIL, "Failed to verify Download Excel button");
-			return false;
-		}
-	}
-
-	/**
-	 * Checks if a PDF file with the specified fileName is downloaded. Deletes the
-	 * downloaded file if found.
-	 * 
-	 * @param fileName The name of the PDF file to check.
-	 * @return true if the PDF file with the specified fileName is downloaded and
-	 *         deleted successfully; false otherwise.
-	 */
-	public boolean isPdfDownloaded(String fileName) {
-		File dir = new File(System.getProperty("user.dir") + "/Downloads/");
-		File[] dirContents = dir.listFiles();
-
-		for (int i = 0; i < dirContents.length; i++) {
-			// if (dirContents[i].getName().matches(fileName+" -
-			// \\d{4}-\\d{2}-\\d{2}T\\d{2}_\\d{2}_\\d{2}\\.pdf")) {
-			if ((dirContents[i].getName().contains(fileName)) & (dirContents[i].getName().endsWith(".pdf"))) {
-
-				// File has been found, it can now be deleted:
-
-				for (File file : dirContents) {
-					if (file.isFile()) {
-						file.delete();
-					}
-				}
-
-				// dirContents[i].delete();
-				return true;
-			}
-		}
-		test.log(Status.FAIL, "Failed to Download file");
-		return false;
-	}
-
-	/**
-	 * Checks if a Excel file with the specified fileName is downloaded. Deletes the
-	 * downloaded file if found.
-	 * 
-	 * @param fileName The name of the PDF file to check.
-	 * @return true if the Excel file with the specified fileName is downloaded and
-	 *         deleted successfully; false otherwise.
-	 */
-	public boolean isCsvDownloaded(String fileName) {
-		File dir = new File(System.getProperty("user.dir") + "/Downloads/");
-		File[] dirContents = dir.listFiles();
-
-		for (int i = 0; i < dirContents.length; i++) {
-			// if (dirContents[i].getName().matches(fileName+" -
-			// \\d{4}-\\d{2}-\\d{2}T\\d{2}_\\d{2}_\\d{2}\\.csv")) {
-			if ((dirContents[i].getName().contains(fileName)) & (dirContents[i].getName().endsWith(".csv"))) {
-
-				// File has been found, it can now be deleted:
-				dirContents[i].delete();
-
-				return true;
-			}
-		}
-		test.log(Status.FAIL, "Failed to Download CSV file");
-		return false;
-	}
-
-	/**
-	 * Clicks on the Download PDF button after waiting for its visibility.
-	 */
-	public void clickOnDownloadPdfBtn() {
-		try {
-			util.waitForVisibilityOfElement(driver, downloadPDFButton);
-			downloadPDFButton.click();
-		} catch (Exception e) {
-			test.log(Status.FAIL, "Failed to click in 'Download PDF' Button");
-		}
-	}
-
-	/**
-	 * Clicks on the Download Excel button after waiting for its visibility.
-	 */
-	public void clickOnDownloadExcelBtn() {
-		try {
-			util.waitForVisibilityOfElement(driver, downloadExcelButton);
-			downloadExcelButton.click();
-		} catch (Exception e) {
-			test.log(Status.FAIL, "Failed to click in 'Download Excel' Button");
-		}
-	}
-
-	/**
-	 * Verifies the functionality of downloading a PDF report based on the
-	 * availability of records and download status. If no records are available,
-	 * checks if the appropriate pop-up is displayed when attempting to download. If
-	 * records are available, checks if the download process initiates and completes
-	 * successfully.
-	 *
-	 * @param reportName The name of the report to be downloaded.
-	 * @return True if the PDF download functionality behaves as expected, otherwise
-	 *         false.
-	 */
-	public boolean verifyDownloadPdfFunctionality(String reportName) {
-
-		if (reportName.equals("Search_Transaction")) {
-			try {
-
-				util.waitForVisibilityOfElementWithWait(driver, noRecordsAvailableMsg, 2);
-				if (noRecordsAvailableMsg.isDisplayed()) {
-					clickOnDownloadPdfBtn();
-					util.waitForVisibilityOfElement(driver, NoDataAvailablePopup);
-					if (NoDataAvailablePopup.isDisplayed()) {
-						test.log(Status.PASS,
-								"When records are not available, selection of 'Download Pdf' button shows : '"
-										+ NoDataAvailablePopup.getText() + "'.");
-						closeNotification.click();
-						return true;
-					} else {
-						test.log(Status.FAIL, "failed to show : No data available Pop_up");
-						return false;
-					}
-				}
-
-			} catch (Exception e) {
-				util.waitForVisibilityOfElement(driver, downloadIsProcessing);
-
-				if (downloadIsProcessing.isDisplayed()) {
-					test.log(Status.PASS,
-							"Popup messgae displayed: 'Your download is processing, will notify you once it is completed'");
-
-					return true;
-				} else {
-					test.log(Status.PASS, "'Your download is processing' Popup messg not displayed");
-					return false;
-				}
-			}
-		}
-
-		try {
-
-			util.waitForVisibilityOfElementWithWait(driver, noRecordsAvailableMsg, 2);
-			if (noRecordsAvailableMsg.isDisplayed()) {
-				clickOnDownloadPdfBtn();
-				util.waitForVisibilityOfElement(driver, NoDataAvailablePopup);
-				if (NoDataAvailablePopup.isDisplayed()) {
-					test.log(Status.PASS, "When records are not available, selection of 'Download Pdf' button shows : '"
-							+ NoDataAvailablePopup.getText() + "'.");
-					closeNotification.click();
-					return true;
-				} else {
-					test.log(Status.FAIL, "failed to show : No data available Pop_up");
-					return false;
-				}
-			}
-
-		} catch (Exception e) {
-
-			try {
-				clickOnDownloadPdfBtn();
-
-				util.waitForVisibilityOfElementWithWait(driver, downloadIsProcessing, 5);
-
-				if (downloadIsProcessing.isDisplayed()) {
-					test.log(Status.PASS,
-							"'Your download is processing, will notify you once it is completed' popup is displayed");
-					closeNotification.click();
-					return true;
-				} else {
-					return false;
-				}
-
-			} catch (Exception f) {
-
-				if (isPdfDownloaded(reportName)) {
-					test.log(Status.PASS, "PDF File Downloaded Successfully");
-					return true;
-				} else {
-
-					test.log(Status.FAIL, "Failed to Download PDF file");
-					return false;
-				}
-			}
-		}
-		test.log(Status.FAIL, "Download pdf verification Failed");
-		return false;
-	}
-
-	/**
-	 * Verifies the functionality of downloading an Excel report based on the
-	 * availability of records and download status. If no records are available,
-	 * checks if the appropriate pop-up is displayed when attempting to download. If
-	 * records are available, checks if the download process initiates and completes
-	 * successfully.
-	 *
-	 * @param reportName The name of the report to be downloaded.
-	 * @return True if the Excel download functionality behaves as expected,
-	 *         otherwise false.
-	 */
-	public boolean verifyDownloadExcelFunctionality(String reportName) {
-		if (reportName.equals("Search_Transaction")) {
-			try {
-
-				util.waitForVisibilityOfElementWithWait(driver, noRecordsAvailableMsg, 2);
-				if (noRecordsAvailableMsg.isDisplayed()) {
-					clickOnDownloadExcelBtn();
-					util.waitForVisibilityOfElement(driver, NoDataAvailablePopup);
-					if (NoDataAvailablePopup.isDisplayed()) {
-						test.log(Status.PASS,
-								"When records are not available, selection of 'Download Excel' button shows : '"
-										+ NoDataAvailablePopup.getText() + "'.");
-						closeNotification.click();
-						return true;
-					} else {
-						test.log(Status.FAIL, "failed to show : No data available Pop_up");
-						return false;
-					}
-				}
-
-			} catch (Exception e) {
-				util.waitForVisibilityOfElement(driver, downloadIsProcessing);
-
-				if (downloadIsProcessing.isDisplayed()) {
-					test.log(Status.PASS,
-							"Popup messgae displayed: 'Your download is processing, will notify you once it is completed'");
-
-					return true;
-				} else {
-					test.log(Status.PASS, "'Your download is processing' Popup message is not displayed");
-					return false;
-				}
-			}
-		}
-		try {
-			if (noRecordsAvailableMsg.isDisplayed()) {
-				clickOnDownloadExcelBtn();
-				util.waitForVisibilityOfElement(driver, NoDataAvailablePopup);
-				if (NoDataAvailablePopup.isDisplayed()) {
-					test.log(Status.PASS,
-							"When records are not available, selection of 'Download Excel' button shows : '"
-									+ NoDataAvailablePopup.getText() + "'.");
-					util.waitForInvisibilityOfElement(driver, NoDataAvailablePopup);
-					return true;
-				} else {
-					test.log(Status.FAIL, "failed to show : No data available Pop_up");
-					return false;
-				}
-			}
-		} catch (Exception e) {
-			try {
-				clickOnDownloadExcelBtn();
-
-				util.waitForVisibilityOfElementWithWait(driver, downloadIsProcessing, 3);
-				if (downloadIsProcessing.isDisplayed()) {
-					test.log(Status.PASS,
-							"'Your download is processing, will notify you once it is completed' popup is displayed");
-					return true;
-				} else {
-					return false;
-				}
-
-			} catch (Exception f) {
-
-				if (isCsvDownloaded(reportName)) {
-					test.log(Status.PASS, "Excel File Downloaded Successfully");
-					return true;
-				} else {
-
-					test.log(Status.FAIL, "Failed to Download Excel file");
-					return false;
-				}
-
-			}
-
-		}
-		test.log(Status.FAIL, "Download Excel verification Failed");
-		return false;
-
-	}
-
-	/**
 	 * Verifies the navigation to the Reports page by checking the visibility of the
 	 * reportsHeader element.
 	 *
@@ -921,48 +330,6 @@ public class ReportsPage extends BaseClass {
 		}
 		return result;
 
-	}
-
-	/**
-	 * Verifies the visibility of all report cards on the Reports page. It navigates
-	 * to the Reports page from the Home page, waits for all report cards to be
-	 * visible, and logs the status of each report card.
-	 *
-	 * @return true if all report cards are displayed, false otherwise.
-	 */
-	public boolean VisibilityOfReportCards() {
-		home.clickOnReports();
-
-		verifyNavigationToReportsPage();
-
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
-		util.waitForVisibilityOfAllElements(driver, allReports);
-		boolean result = false;
-		try {
-			for (WebElement report : allReports) {
-
-				util.waitForVisibilityOfElement(driver, report);
-
-				if (report.isDisplayed()) {
-					test.log(Status.PASS, report.getText() + " report card is displayed");
-
-					result = true;
-				} else {
-					test.log(Status.FAIL, report.getText() + " report card is not displayed");
-					result = false;
-				}
-				if (result == false) {
-					return result;
-				}
-			}
-			return result;
-		} catch (NoSuchElementException e) {
-			return result;
-		}
 	}
 
 	/**
@@ -1084,6 +451,71 @@ public class ReportsPage extends BaseClass {
 
 	}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// ===========================================================
+	// ===========================================================
+	// ==========================================================
+
+
 	public boolean verifyFilterByMonthBatch() {
 		util.waitForVisibilityOfElement(driver, filterByDropdown);
 
@@ -1102,26 +534,26 @@ public class ReportsPage extends BaseClass {
 
 	}
 
-		/**
+	/**
 	 * clicks on Totals summary report, checks the Filter 'By Month' and 'By Day'
 	 * dropdown functionality
 	 * 
 	 * @return false if the filter By functionality is not working
 	 */
 	public void navigateToTotalsSummary() {
-		try{
+		try {
 			clickOnReports();
-		util.waitForVisibilityOfAllElements(driver, allReports);
-		util.waitForVisibilityOfElement(driver, totalsSummaryLink);
-		totalsSummaryLink.click();
-		util.waitForVisibilityOfElement(driver,reportName);
-		// System.out.println(reportName);
+			util.waitForVisibilityOfAllElements(driver, allReports);
+			util.waitForVisibilityOfElement(driver, totalsSummaryLink);
+			totalsSummaryLink.click();
+			util.waitForVisibilityOfElement(driver, reportName);
+			// System.out.println(reportName);
 
-		if (reportName.getText().equals("Totals Summary Report")) {
+			if (reportName.getText().equals("Totals Summary Report")) {
 
-		} else {
-			test.log(Status.FAIL, "failed to navigate to totalsSummary");
-		}
+			} else {
+				test.log(Status.FAIL, "failed to navigate to totalsSummary");
+			}
 		} catch (Exception e) {
 			System.out.println("failed to navigate to total summary report");
 			test.log(Status.FAIL, "failed to navigate to total summary report");
@@ -2510,6 +1942,321 @@ public class ReportsPage extends BaseClass {
 			test.log(Status.INFO, "Daily DiscountCalculator card not available");
 			return true;
 		}
+	}
+
+	/**
+	 * Verifies if the 'Download PDF' button is enabled.
+	 * 
+	 * @return true if the 'Download PDF' button is enabled; false otherwise.
+	 */
+	public boolean isDownloadPDFEnabled() {
+		try {
+			util.waitForVisibilityOfElement(driver, downloadPDFButton);
+			if (downloadPDFButton.isEnabled()) {
+				// test.log(Status.PASS, " Download PDF is Enabled");
+
+				return true;
+			} else {
+				test.log(Status.FAIL, "Download PDF is not Enabled");
+				return false;
+			}
+		} catch (Exception e) {
+			test.log(Status.FAIL, "Failed to verify Download PDF button");
+			return false;
+		}
+	}
+
+	/**
+	 * Verifies if the 'Download Excel' button is enabled.
+	 * 
+	 * @return true if the 'Download Excel' button is enabled; false otherwise.
+	 */
+	public boolean isDownloadExcelEnabled() {
+		try {
+			util.waitForVisibilityOfElement(driver, downloadExcelButton);
+			if (downloadExcelButton.isEnabled()) {
+				// test.log(Status.PASS, " Download Excel is Enabled");
+				return true;
+			} else {
+				test.log(Status.FAIL, "Download Excel is not Enabled");
+				return false;
+			}
+		} catch (Exception e) {
+			test.log(Status.FAIL, "Failed to verify Download Excel button");
+			return false;
+		}
+	}
+
+	/**
+	 * Checks if a Excel file with the specified fileName is downloaded. Deletes the
+	 * downloaded file if found.
+	 * 
+	 * @param fileName The name of the PDF file to check.
+	 * @return true if the Excel file with the specified fileName is downloaded and
+	 *         deleted successfully; false otherwise.
+	 */
+	public boolean isCsvDownloaded(String fileName) {
+		File dir = new File(System.getProperty("user.dir") + "/Downloads/");
+		File[] dirContents = dir.listFiles();
+
+		for (int i = 0; i < dirContents.length; i++) {
+			// if (dirContents[i].getName().matches(fileName+" -
+			// \\d{4}-\\d{2}-\\d{2}T\\d{2}_\\d{2}_\\d{2}\\.csv")) {
+			if ((dirContents[i].getName().contains(fileName)) & (dirContents[i].getName().endsWith(".csv"))) {
+
+				// File has been found, it can now be deleted:
+				dirContents[i].delete();
+
+				return true;
+			}
+		}
+		test.log(Status.FAIL, "Failed to Download CSV file");
+		return false;
+	}
+
+	/**
+	 * Clicks on the Download PDF button after waiting for its visibility.
+	 */
+	public void clickOnDownloadPdfBtn() {
+		try {
+			util.waitForVisibilityOfElement(driver, downloadPDFButton);
+			downloadPDFButton.click();
+		} catch (Exception e) {
+			test.log(Status.FAIL, "Failed to click in 'Download PDF' Button");
+		}
+	}
+
+	/**
+	 * Clicks on the Download Excel button after waiting for its visibility.
+	 */
+	public void clickOnDownloadExcelBtn() {
+		try {
+			util.waitForVisibilityOfElement(driver, downloadExcelButton);
+			downloadExcelButton.click();
+		} catch (Exception e) {
+			test.log(Status.FAIL, "Failed to click in 'Download Excel' Button");
+		}
+	}
+
+	/**
+	 * Verifies the functionality of downloading a PDF report based on the
+	 * availability of records and download status. If no records are available,
+	 * checks if the appropriate pop-up is displayed when attempting to download. If
+	 * records are available, checks if the download process initiates and completes
+	 * successfully.
+	 *
+	 * @param reportName The name of the report to be downloaded.
+	 * @return True if the PDF download functionality behaves as expected, otherwise
+	 *         false.
+	 */
+	public boolean verifyDownloadPdfFunctionality(String reportName) {
+
+		if (reportName.equals("Search_Transaction")) {
+			try {
+
+				util.waitForVisibilityOfElementWithWait(driver, noRecordsAvailableMsg, 2);
+				if (noRecordsAvailableMsg.isDisplayed()) {
+					clickOnDownloadPdfBtn();
+					util.waitForVisibilityOfElement(driver, NoDataAvailablePopup);
+					if (NoDataAvailablePopup.isDisplayed()) {
+						test.log(Status.PASS,
+								"When records are not available, selection of 'Download Pdf' button shows : '"
+										+ NoDataAvailablePopup.getText() + "'.");
+						closeNotification.click();
+						return true;
+					} else {
+						test.log(Status.FAIL, "failed to show : No data available Pop_up");
+						return false;
+					}
+				}
+
+			} catch (Exception e) {
+				util.waitForVisibilityOfElement(driver, downloadIsProcessing);
+
+				if (downloadIsProcessing.isDisplayed()) {
+					test.log(Status.PASS,
+							"Popup messgae displayed: 'Your download is processing, will notify you once it is completed'");
+
+					return true;
+				} else {
+					test.log(Status.PASS, "'Your download is processing' Popup messg not displayed");
+					return false;
+				}
+			}
+		}
+
+		try {
+
+			util.waitForVisibilityOfElementWithWait(driver, noRecordsAvailableMsg, 2);
+			if (noRecordsAvailableMsg.isDisplayed()) {
+				clickOnDownloadPdfBtn();
+				util.waitForVisibilityOfElement(driver, NoDataAvailablePopup);
+				if (NoDataAvailablePopup.isDisplayed()) {
+					test.log(Status.PASS, "When records are not available, selection of 'Download Pdf' button shows : '"
+							+ NoDataAvailablePopup.getText() + "'.");
+					closeNotification.click();
+					return true;
+				} else {
+					test.log(Status.FAIL, "failed to show : No data available Pop_up");
+					return false;
+				}
+			}
+
+		} catch (Exception e) {
+
+			try {
+				clickOnDownloadPdfBtn();
+
+				util.waitForVisibilityOfElementWithWait(driver, downloadIsProcessing, 5);
+
+				if (downloadIsProcessing.isDisplayed()) {
+					test.log(Status.PASS,
+							"'Your download is processing, will notify you once it is completed' popup is displayed");
+					closeNotification.click();
+					return true;
+				} else {
+					return false;
+				}
+
+			} catch (Exception f) {
+
+				if (isPdfDownloaded(reportName)) {
+					test.log(Status.PASS, "PDF File Downloaded Successfully");
+					return true;
+				} else {
+
+					test.log(Status.FAIL, "Failed to Download PDF file");
+					return false;
+				}
+			}
+		}
+		test.log(Status.FAIL, "Download pdf verification Failed");
+		return false;
+	}
+
+	/**
+	 * Verifies the functionality of downloading an Excel report based on the
+	 * availability of records and download status. If no records are available,
+	 * checks if the appropriate pop-up is displayed when attempting to download. If
+	 * records are available, checks if the download process initiates and completes
+	 * successfully.
+	 *
+	 * @param reportName The name of the report to be downloaded.
+	 * @return True if the Excel download functionality behaves as expected,
+	 *         otherwise false.
+	 */
+	public boolean verifyDownloadExcelFunctionality(String reportName) {
+		if (reportName.equals("Search_Transaction")) {
+			try {
+
+				util.waitForVisibilityOfElementWithWait(driver, noRecordsAvailableMsg, 2);
+				if (noRecordsAvailableMsg.isDisplayed()) {
+					clickOnDownloadExcelBtn();
+					util.waitForVisibilityOfElement(driver, NoDataAvailablePopup);
+					if (NoDataAvailablePopup.isDisplayed()) {
+						test.log(Status.PASS,
+								"When records are not available, selection of 'Download Excel' button shows : '"
+										+ NoDataAvailablePopup.getText() + "'.");
+						closeNotification.click();
+						return true;
+					} else {
+						test.log(Status.FAIL, "failed to show : No data available Pop_up");
+						return false;
+					}
+				}
+
+			} catch (Exception e) {
+				util.waitForVisibilityOfElement(driver, downloadIsProcessing);
+
+				if (downloadIsProcessing.isDisplayed()) {
+					test.log(Status.PASS,
+							"Popup messgae displayed: 'Your download is processing, will notify you once it is completed'");
+
+					return true;
+				} else {
+					test.log(Status.PASS, "'Your download is processing' Popup message is not displayed");
+					return false;
+				}
+			}
+		}
+		try {
+			if (noRecordsAvailableMsg.isDisplayed()) {
+				clickOnDownloadExcelBtn();
+				util.waitForVisibilityOfElement(driver, NoDataAvailablePopup);
+				if (NoDataAvailablePopup.isDisplayed()) {
+					test.log(Status.PASS,
+							"When records are not available, selection of 'Download Excel' button shows : '"
+									+ NoDataAvailablePopup.getText() + "'.");
+					util.waitForInvisibilityOfElement(driver, NoDataAvailablePopup);
+					return true;
+				} else {
+					test.log(Status.FAIL, "failed to show : No data available Pop_up");
+					return false;
+				}
+			}
+		} catch (Exception e) {
+			try {
+				clickOnDownloadExcelBtn();
+
+				util.waitForVisibilityOfElementWithWait(driver, downloadIsProcessing, 3);
+				if (downloadIsProcessing.isDisplayed()) {
+					test.log(Status.PASS,
+							"'Your download is processing, will notify you once it is completed' popup is displayed");
+					return true;
+				} else {
+					return false;
+				}
+
+			} catch (Exception f) {
+
+				if (isCsvDownloaded(reportName)) {
+					test.log(Status.PASS, "Excel File Downloaded Successfully");
+					return true;
+				} else {
+
+					test.log(Status.FAIL, "Failed to Download Excel file");
+					return false;
+				}
+
+			}
+
+		}
+		test.log(Status.FAIL, "Download Excel verification Failed");
+		return false;
+
+	}
+
+	/**
+	 * Checks if a PDF file with the specified fileName is downloaded. Deletes the
+	 * downloaded file if found.
+	 * 
+	 * @param fileName The name of the PDF file to check.
+	 * @return true if the PDF file with the specified fileName is downloaded and
+	 *         deleted successfully; false otherwise.
+	 */
+	public boolean isPdfDownloaded(String fileName) {
+		File dir = new File(System.getProperty("user.dir") + "/Downloads/");
+		File[] dirContents = dir.listFiles();
+
+		for (int i = 0; i < dirContents.length; i++) {
+			// if (dirContents[i].getName().matches(fileName+" -
+			// \\d{4}-\\d{2}-\\d{2}T\\d{2}_\\d{2}_\\d{2}\\.pdf")) {
+			if ((dirContents[i].getName().contains(fileName)) & (dirContents[i].getName().endsWith(".pdf"))) {
+
+				// File has been found, it can now be deleted:
+
+				for (File file : dirContents) {
+					if (file.isFile()) {
+						file.delete();
+					}
+				}
+
+				// dirContents[i].delete();
+				return true;
+			}
+		}
+		test.log(Status.FAIL, "Failed to Download file");
+		return false;
 	}
 
 	/**
