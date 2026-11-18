@@ -135,10 +135,12 @@ public class BoDataCheck extends BaseTest {
 			} else {
 
 				reportsP.navigateTo_TotalsSummaryReport();
-				util.waitForVisibilityOfElement(driver, reportsP.totalsSummaryReportSalesAmount);
+				// util.waitForVisibilityOfElement(driver,
+				// reportsP.totalsSummaryReportSalesAmount);
 				s.assertTrue(reportsP.getReportName().equals("Totals Summary Report"));
 
-				util.scrollHandleEndOfTheElement(driver, reportsP.totalsSummaryReportSalesAmount);
+				// util.scrollHandleEndOfTheElement(driver,
+				// reportsP.totalsSummaryReportSalesAmount);
 				util.addBase64ScreenShotToReport(driver, test);
 
 				tst = reportsP.getsalesAmount();

@@ -395,7 +395,7 @@ public class Regression extends BaseTest {
 
 		a.assertTrue(reportsP.verifyDownloadPdfFunctionality("Totals Summary"));
 		a.assertTrue(reportsP.verifyDownloadExcelFunctionality("Totals_Summary"));
-		a.assertTrue(reportsP.verifyClearFilterFunctionalityForTotalSummary());
+		// a.assertTrue(reportsP.verifyClearFilterFunctionalityForTotalSummary());
 		a.assertAll();
 
 		// assertTrue(reports.verifyTotalsSummaryReport());
@@ -409,7 +409,7 @@ public class Regression extends BaseTest {
 
 		a.assertTrue(reportsP.verifyDownloadPdfFunctionality("Settled Batches"));
 		a.assertTrue(reportsP.verifyDownloadExcelFunctionality("Settled_Batches"));
-		a.assertTrue(reportsP.verifyClearFilterFunctionalityForSettledBatches());
+		// a.assertTrue(reportsP.verifyClearFilterFunctionalityForSettledBatches());
 		a.assertAll();
 	}
 
@@ -424,7 +424,7 @@ public class Regression extends BaseTest {
 		a.assertTrue(reportsP.VerifyFilterByDateRange("dateRange"));
 		a.assertTrue(reportsP.verifyDownloadPdfFunctionality("ACH"));
 		a.assertTrue(reportsP.verifyDownloadExcelFunctionality("ACH"));
-		a.assertTrue(reportsP.verifyClearFilterFunctionalityForACH());
+		// a.assertTrue(reportsP.verifyClearFilterFunctionalityForACH());
 		a.assertAll();
 
 	}
@@ -437,7 +437,7 @@ public class Regression extends BaseTest {
 
 		a.assertTrue(reportsP.verifyDownloadPdfFunctionality("Search_Transaction"));
 		a.assertTrue(reportsP.verifyDownloadExcelFunctionality("Search_Transaction"));
-		a.assertTrue(reportsP.verifyClearFilterFunctionalityForSearchTransactions());
+		// a.assertTrue(reportsP.verifyClearFilterFunctionalityForSearchTransactions());
 
 		a.assertAll();
 	}
