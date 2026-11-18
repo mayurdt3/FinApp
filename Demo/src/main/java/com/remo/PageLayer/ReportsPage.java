@@ -70,6 +70,21 @@ public class ReportsPage extends BaseClass {
 	@FindBy(css = "[data-testid='report-table-totals-row']")
 	private WebElement totalsRow;
 
+	@FindBy(css = "[data-testid='report-table-total-sales']")
+	private WebElement salesAmount;
+
+	@FindBy(css = "[data-testid='report-table-total-refunds']")
+	private WebElement refundAmount;
+
+	@FindBy(css = "[data-testid='report-table-total-refundItems']")
+	private WebElement refundItems;
+
+	@FindBy(css = "[data-testid='report-table-total-sales']")
+	private WebElement salesItems;
+
+	@FindBy(css = "[data-testid='report-table-total-total']")
+	private WebElement totalsSummaryReportSalesAmount;
+
 	/**
 	 * WebElements For Reports Page
 	 */
@@ -176,8 +191,8 @@ public class ReportsPage extends BaseClass {
 	@FindBy(xpath = "//tbody[@role='presentation']//td[text()='No records available']")
 	public WebElement noRecordsAvailableMsg;
 
-	@FindBy(xpath = "//div[@class ='k-grid-footer']//td[7]")
-	public WebElement totalsSummaryReportSalesAmount;
+	// @FindBy(xpath = "//div[@class ='k-grid-footer']//td[7]")
+	// public WebElement totalsSummaryReportSalesAmount;
 
 	// @FindBy(xpath = "//tbody[@role='presentation']//td[text()='Your download is
 	// processing, will notify you once it is completed']")
@@ -451,70 +466,51 @@ public class ReportsPage extends BaseClass {
 
 	}
 
+	public String getsalesAmount() {
+		try {
+			return salesAmount.getText();
+		} catch (Exception e) {
+			test.log(Status.FAIL, "Faliled to fetch " + "salese Amount");
+			return null;
+		}
+	}
 
+	public String getsalesItem() {
+		try {
+			return salesItems.getText();
+		} catch (Exception e) {
+			test.log(Status.FAIL, "Faliled to fetch " + "salese Amount");
+			return null;
+		}
+	}
 
+	public String getRefundAmount() {
+		try {
+			return refundItems.getText();
+		} catch (Exception e) {
+			test.log(Status.FAIL, "Faliled to fetch " + "salese Amount");
+			return null;
+		}
+	}
 
+	public String getRefundItem() {
+		try {
+			return refundItems.getText();
+		}
 
+		catch (Exception e) {
+			test.log(Status.FAIL, "Faliled to fetch " + "salese Amount");
+			return null;
+		}
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	public void verifySummaryCalculations() {
+		// Sales amount - refund =Total Sub,itted Amount
+	}
 
 	// ===========================================================
 	// ===========================================================
 	// ==========================================================
-
 
 	public boolean verifyFilterByMonthBatch() {
 		util.waitForVisibilityOfElement(driver, filterByDropdown);
@@ -2350,36 +2346,6 @@ public class ReportsPage extends BaseClass {
 		} else {
 			test.log(Status.FAIL, "PCD Live View report functionality failed");
 			return false;
-		}
-	}
-
-	public String getsalesItem() {
-		try {
-			int columnNumber = getIndexOfTableHeader("Sales Items");
-			List<WebElement> footer = driver.findElements(By.xpath("//div[@class ='k-grid-footer']//td"));
-			String salesItems = footer.get(columnNumber - 1).getText();
-
-			return salesItems;
-
-		}
-
-		catch (Exception e) {
-			return null;
-		}
-	}
-
-	public String getsalesAmount() {
-		try {
-			int columnNumber = getIndexOfTableHeader("Total Submitted Amount");
-			List<WebElement> footer = driver.findElements(By.xpath("//div[@class ='k-grid-footer']//td"));
-			String salesAmount = footer.get(columnNumber - 1).getText();
-
-			return salesAmount;
-
-		}
-
-		catch (Exception e) {
-			return null;
 		}
 	}
 

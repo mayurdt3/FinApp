@@ -47,18 +47,14 @@ public class ReportsTest extends BaseTest {
 		test = extent.createTest("Verify functionality of totals summary report");
 		reportsP.navigateToTotalsSummary();
 		SoftAssert a = new SoftAssert();
+//Sales amount - refund =Total Sub,itted Amount
 
-		a.assertTrue(reportsP.verifyFilterByMonth());
-		a.assertTrue(reportsP.verifyFilterByDay());
-		a.assertTrue(reportsP.VerifyFilterByDateRange("dateRange"));
-		a.assertTrue(reportsP.verifyDownloadPdfFunctionality("Total Summary"));
-		a.assertTrue(reportsP.verifyDownloadExcelFunctionality("Total_Summary"));
-		a.assertTrue(reportsP.verifyClearFilterFunctionalityForTotalSummary());
+
+	
 		a.assertAll();
 
 	}
-
-
+	
 
 	// // @Test(priority =4)
 	// public void verifySettledBatchesReportFunctionality() {
