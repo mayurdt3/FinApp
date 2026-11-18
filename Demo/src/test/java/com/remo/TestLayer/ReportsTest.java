@@ -47,14 +47,13 @@ public class ReportsTest extends BaseTest {
 		test = extent.createTest("Verify functionality of totals summary report");
 		reportsP.navigateToTotalsSummary();
 		SoftAssert a = new SoftAssert();
-//Sales amount - refund =Total Sub,itted Amount
+		// Sales amount - refund =Total Sub,itted Amount
 
+		a.assertTrue(reportsP.verifySummaryCalculations());
 
-	
 		a.assertAll();
 
 	}
-	
 
 	// // @Test(priority =4)
 	// public void verifySettledBatchesReportFunctionality() {

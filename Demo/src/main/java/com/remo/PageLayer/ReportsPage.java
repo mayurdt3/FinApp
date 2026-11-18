@@ -466,7 +466,7 @@ public class ReportsPage extends BaseClass {
 
 	}
 
-	public String getsalesAmount() {
+	public String getSalesAmount() {
 		try {
 			return salesAmount.getText();
 		} catch (Exception e) {
@@ -475,11 +475,11 @@ public class ReportsPage extends BaseClass {
 		}
 	}
 
-	public String getsalesItem() {
+	public String getSalesItem() {
 		try {
 			return salesItems.getText();
 		} catch (Exception e) {
-			test.log(Status.FAIL, "Faliled to fetch " + "salese Amount");
+			test.log(Status.FAIL, "Faliled to fetch " + "salese Item");
 			return null;
 		}
 	}
@@ -488,7 +488,7 @@ public class ReportsPage extends BaseClass {
 		try {
 			return refundItems.getText();
 		} catch (Exception e) {
-			test.log(Status.FAIL, "Faliled to fetch " + "salese Amount");
+			test.log(Status.FAIL, "Faliled to fetch " + "Refund Amount");
 			return null;
 		}
 	}
@@ -499,13 +499,49 @@ public class ReportsPage extends BaseClass {
 		}
 
 		catch (Exception e) {
-			test.log(Status.FAIL, "Faliled to fetch " + "salese Amount");
+			test.log(Status.FAIL, "Faliled to fetch " + "refund Item");
 			return null;
 		}
 	}
 
-	public void verifySummaryCalculations() {
+	public boolean verifySummaryCalculations() {
 		// Sales amount - refund =Total Sub,itted Amount
+
+		Long salesAmount = parseMoneyToCents(getSalesAmount());
+		System.out.println("Sales Amount: " + salesAmount);
+
+		Long refundAmount = parseMoneyToCents(getRefundAmount());
+		System.out.println("Sales Amount: " + refundAmount);
+
+		Long totalSumbittedAmount = parseMoneyToCents(getTotalSubmittedAmount());
+		System.out.println("Total Sumbitted Amount: " + totalSumbittedAmount);
+		Long expectedtotalSumbittedAmount = salesAmount - refundAmount;
+
+		if (totalSumbittedAmount == expectedtotalSumbittedAmount) {
+			test.log(Status.PASS, "Summury calulations is correct");
+			return true;
+
+		} else {
+			test.log(Status.FAIL,
+					String.format(
+							"Net Sales Caludcation issue,  Toatl Submitted amout and Sales amount is smae when Refund is present \n"
+									+
+									"Expected Toatl submitted Amount: " + expectedtotalSumbittedAmount + " found: "
+									+ totalSumbittedAmount));
+			return false;
+		}
+
+	}
+
+	/** Parse money string like "$1,234.56" to cents as long */
+	private long parseMoneyToCents(String money) {
+		String cleaned = money.replace("$", "").replace(",", "").trim();
+		return (long) (Double.parseDouble(cleaned) * 100);
+	}
+
+	/** Format cents back to dollars */
+	private String formatCents(long cents) {
+		return String.format("$%.2f", cents / 100.0);
 	}
 
 	// ===========================================================
