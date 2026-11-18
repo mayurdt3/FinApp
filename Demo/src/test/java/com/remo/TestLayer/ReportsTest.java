@@ -44,6 +44,7 @@ public class ReportsTest extends BaseTest {
 
 	@Test(priority = 3)
 	public void verifyTotalsSummaryReportFunctionality() {
+		reportsP.navigateToTotalsSummary();
 		test = extent.createTest("Verify functionality of totals summary report");
 		reportsP.navigateToTotalsSummary();
 		SoftAssert a = new SoftAssert();

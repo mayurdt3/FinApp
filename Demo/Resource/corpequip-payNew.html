@@ -74,6 +74,8 @@ tr.daily-total td{background:#ecfdf3;font-weight:700}.pager{display:flex;align-i
 .bugs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}pre{background:#0f172a;color:#e2e8f0;padding:12px;border-radius:8px;font-size:12px;white-space:pre-wrap}
 #toasts{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:60;max-width:380px}.toast{background:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 4px 14px rgba(16,24,40,.18);border-left:4px solid #175cd3}.toast-success{border-color:var(--green)}.toast-error{border-color:var(--red)}
 @media (max-width:1000px){.dash,.isogrid,.prof,.grid2{grid-template-columns:1fr}.plats{grid-template-columns:repeat(2,1fr)}.trends{grid-template-columns:repeat(2,1fr)}.choices.four{grid-template-columns:1fr 1fr}}
+[data-testid=recon-report] td,[data-testid=recon-table] td{white-space:normal}
+.bchips{display:flex;flex-wrap:wrap;gap:4px}.bchip{font-size:11px;font-weight:600;border-radius:10px;padding:1px 8px;border:1px solid}.b-rep{background:#fef3f2;color:#b42318;border-color:#fecdca}.b-wait{background:#fffaeb;color:#b54708;border-color:#fedf89}.b-off{background:#f2f4f7;color:#667085;border-color:#e4e7ec}.screenbugs{margin-top:12px;padding:10px 12px;border:1px dashed #d0d5dd;border-radius:8px;display:flex;flex-direction:column;gap:6px}
 
 </style>
 </head>
@@ -94,7 +96,7 @@ const DATA_START = '2026-01-01';
 const DATA_END = '2026-11-15';
 const YEARS = ['2026', '2025'];
 const PAGE_SIZE = 10;
-const BUG_IDS = ['BUG-01', 'BUG-02', 'BUG-03', 'BUG-04', 'BUG-05', 'BUG-06', 'BUG-07', 'BUG-08', 'BUG-09', 'BUG-10', 'BUG-11', 'BUG-12'];
+const BUG_IDS = ['BUG-01', 'BUG-02', 'BUG-03', 'BUG-04', 'BUG-05', 'BUG-06', 'BUG-07', 'BUG-08', 'BUG-09', 'BUG-10', 'BUG-11', 'BUG-12', 'BUG-13', 'BUG-14'];
 
 let S = null;   // persisted state
 let D = null;   // generated (deterministic) merchant data
@@ -254,8 +256,12 @@ function rptTotals(q) {
 }
 function rptBatches(q) {
   const p = period(q); const key = q.dateType === 'funded' ? 'depositDate' : 'closeDate';
-  return { p: p, rows: D.batches.filter(b => inPeriod(b[key], p)) };
+  let rows = D.batches.filter(b => inPeriod(b[key], p));
+  if (bug('BUG-13')) rows = rows.map(b => Object.assign({}, b, { count: b.items.filter(t => t.action === 'Sale').length }));
+  return { p: p, rows: rows };
 }
+// net amount of a list of transactions: sales add, refunds subtract
+function searchNet(rows) { return rows.reduce((a, t) => a + (t.action === 'Refund' && !bug('BUG-14') ? -t.amount : t.amount), 0); }
 function rptSearch(q) {
   const p = period(q);
   return { p: p, rows: D.txns.filter(t => inPeriod(t.date, p) && (!q.type || t.action === q.type) && (!q.last4 || t.last4 === q.last4) && (!q.amount || plain(t.amount) === Number(q.amount).toFixed(2))) };
@@ -346,7 +352,11 @@ function runRecon() {
   months.forEach(m => { const q = { mode: 'month', year: m.slice(0, 4), month: m.slice(5) }; const t = sum(rptTotals(q).rows, r => r.total), b = sum(rptBatches(q).rows, r => r.amount); e1 += b; a1 += t; if (t !== b) off1.push(m); });
   add('R1', 'Totals Summary total submitted = Σ settled batch amounts (per month)', e1, a1, off1);
   add('R2', 'Σ settled batch amounts = Σ ACH batch deposits (BTOT)', sum(D.batches, b => b.amount), sum(D.ach.filter(a => a.crdType === 'BTOT'), a => a.amount));
-  add('R3', 'Search Transactions row count = Σ batch transaction counts', sum(D.batches, b => b.count), rptSearch({ mode: 'range', from: DATA_START, to: DATA_END }).rows.length);
+  const allMonths = fullMonths().concat([DATA_END.slice(0, 7)]); const mq = m => ({ mode: 'month', year: m.slice(0, 4), month: String(+m.slice(5)) });
+  const trueCount = sum(D.batches, b => b.count); const off3 = []; let a3 = trueCount;
+  allMonths.forEach(m => { const bc = sum(rptBatches(mq(m)).rows, b => b.count), sc = rptSearch(mq(m)).rows.length; if (bc !== sc) { off3.push(m); if (a3 === trueCount) a3 = trueCount - sc + bc; } });
+  const rangeCount = rptSearch({ mode: 'range', from: DATA_START, to: DATA_END }).rows.length; if (rangeCount !== trueCount) { off3.push('range'); if (a3 === trueCount) a3 = rangeCount; }
+  add('R3', 'Settled Batches trans count = Search Transactions row count (per month and full range)', trueCount, a3, off3);
   const lm = fullMonths().slice(-1)[0]; const dq = { mode: 'month', year: lm.slice(0, 4), month: String(+lm.slice(5)) }; const dr = rptDiscount(dq).rows;
   const off4 = dr.filter(r => r.total).filter(r => r.amount !== sum(D.batches.filter(b => b.closeDate === r.date), b => b.amount)).map(r => r.date);
   add('R4', 'Daily Discount Calculator daily totals = Σ batch amounts per day', sum(rptBatches(dq).rows, b => b.amount), sum(dr.filter(r => r.total), r => r.amount), off4);
@@ -360,6 +370,9 @@ function runRecon() {
   const subs = S.apps.filter(a => a.order);
   const off8 = subs.filter(a => sum(a.order.lines, l => l.price * l.qty) + a.order.ship !== a.order.total).map(a => a.id);
   add('R8', 'Submitted equipment orders: Σ lines + shipping = order total', 0, off8.length, off8);
+  const off9 = []; let e9 = 0, a9 = 0;
+  allMonths.forEach(m => { const b = sum(rptBatches(mq(m)).rows, x => x.amount), t = searchNet(rptSearch(mq(m)).rows); e9 += b; a9 += t; if (b !== t) off9.push(m); });
+  add('R9', 'Search Transactions net total = Σ settled batch amounts (per month)', e9, a9, off9);
   return { ranAt: S.today, activeBugs: S.bugs.slice(), allPassed: checks.every(c => c.status === 'PASS'), passed: checks.filter(c => c.status === 'PASS').length, failed: checks.filter(c => c.status === 'FAIL').length, checks: checks };
 }
 
@@ -524,7 +537,7 @@ const REPORTS = {
   'search-transactions': { title: 'Search Transactions Report', desc: 'Individual transaction list', run: rptSearch,
     post: q => [selField('type', 'Trans Type', [['', 'All'], ['Sale', 'Sale'], ['Refund', 'Refund']], q.type), inField('last4', 'Last 4 Digits Of Card', q.last4, '1234'), inField('amount', 'Amount', q.amount, '0.00')],
     cols: [{ key: 'date', label: 'Transaction Date', date: true }, { key: 'time', label: 'Time' }, { key: 'card', label: 'Card Type' }, { key: 'cardNo', label: 'Card No' }, { key: 'action', label: 'Action Code' }, { key: 'amount', label: 'Amount', money: true }, { key: 'batchId', label: 'BatchID' }],
-    totals: r => ({ amount: sumBy(r, t => t.action === 'Refund' ? -t.amount : t.amount) }), key: r => r.id },
+    totals: r => ({ amount: searchNet(r) }), key: r => r.id },
   'ach-deposit': { title: 'ACH Deposit Report', desc: 'Amounts deposited to your bank', run: rptAch,
     post: q => [selField('tranCode', 'Tran Code', [['', 'Select Tran Code'], ['Checking Deposit', 'Checking Deposit'], ['Checking Debit', 'Checking Debit'], ['Chargeback Debit', 'Chargeback Debit']], q.tranCode)],
     cols: [{ key: 'depositDate', label: 'Deposit Date', date: true }, { key: 'amount', label: 'Amount', money: true }, { key: 'tranType', label: 'Tran Type' }, { key: 'dpTy', label: 'DP TY' }, { key: 'crdType', label: 'CRD Type' },
@@ -532,6 +545,7 @@ const REPORTS = {
       { key: 'inc', label: 'What is Included', nosort: true, val: a => a.batchId ? 'Open' : '', render: a => a.batchId ? '<a href="#/reports/ach-deposit/included/' + a.id + '" data-testid="ach-included-' + a.id + '">Open</a>' : '' }],
     totals: r => ({ amount: sumBy(r, 'amount') }), key: r => r.id },
   'merchant-statements': { title: 'Merchant Statements Report', desc: 'Current and historical merchant statements', custom: true },
+  'reconciliation': { title: 'Reconciliation Report', desc: 'Cross-report integrity checks: do all reports agree?', custom: true },
   'daily-upload': { title: 'Daily Upload Report', desc: 'Daily file upload executions', run: rptUploads,
     pre: q => [selField('uploadType', 'Date Type', [['file', 'File Date'], ['downloaded', 'Downloaded Date']], q.uploadType || 'file')],
     cols: [{ key: 'id', label: 'Execution ID' }, { key: 'start', label: 'Execution Start Time' }, { key: 'end', label: 'Execution End Time' }, { key: 'collections', label: 'Total Collections', num: true },
@@ -547,7 +561,7 @@ const REPORTS = {
       { key: 'amount', label: 'Batch Amount', money: true }, { key: 'funded', label: 'Funded Amount', money: true }],
     key: r => r.key, rowClass: r => r.total ? 'daily-total' : '' }
 };
-const REPORT_ORDER = ['totals-summary', 'settled-batches', 'search-transactions', 'merchant-statements', 'daily-upload', 'chargebacks', 'ach-deposit', 'discount-calculator'];
+const REPORT_ORDER = ['totals-summary', 'settled-batches', 'search-transactions', 'merchant-statements', 'daily-upload', 'chargebacks', 'ach-deposit', 'discount-calculator', 'reconciliation'];
 
 function pageReportsHub() {
   return layout(head('Reports', 'Dashboard /') + '<div class="cards4">' + REPORT_ORDER.map(id => { const r = REPORTS[id];
@@ -628,6 +642,73 @@ function pagePdf(id, q) {
     '<div class="r"><strong data-testid="pdf-title">' + esc(title) + '</strong><br><span data-testid="pdf-period">' + esc(label) + '</span><br><strong>Merchant ID: ' + MERCHANT.mid + '</strong></div></div>' +
     (id === 'statement' ? '' : '<h2 class="pdftitle">' + esc(title) + '</h2>') + body + '<div class="pdffoot">Print Date: ' + us(S.today) + ' &nbsp; Page 1 / 1</div></div></div>';
 }
+
+/* ---------- reconciliation report (cross-report consistency) ---------- */
+const RECON_MONEY = ['R1', 'R2', 'R4', 'R6', 'R9'];
+function reconLink(id, chk) {
+  if (/^\d{4}-\d{2}$/.test(id) && (chk === 'R3' || chk === 'R9')) return '<a href="#/reports/' + (chk === 'R3' ? 'settled-batches' : 'search-transactions') + '?mode=month&month=' + (+id.slice(5)) + '&year=' + id.slice(0, 4) + '">' + id + '</a>';
+  if (id === 'range') return '<a href="#/reports/search-transactions?mode=range&from=' + DATA_START + '&to=' + DATA_END + '">full date range</a>';
+  if (/^\d{4}-\d{2}$/.test(id) && chk === 'R7') return '<a href="#/reports/merchant-statements/' + id + '">' + id + '</a>';
+  if (/^\d{4}-\d{2}$/.test(id)) return '<a href="#/reports/totals-summary?mode=month&month=' + (+id.slice(5)) + '&year=' + id.slice(0, 4) + '">' + id + '</a>';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(id)) return '<a href="#/reports/discount-calculator?mode=day&date=' + id + '">' + us(id) + '</a>';
+  if (/^\d{4}$/.test(id)) return '<a href="#/reports/totals-summary?mode=year&year=' + id + '">' + id + '</a>';
+  if (/^D\d+$/.test(id)) return '<a href="#/reports/ach-deposit/included/' + id + '">' + id + '</a>';
+  if (/^APP-/.test(id)) return '<a href="#/iso/' + id + '/confirmation">' + id + '</a>';
+  return esc(id);
+}
+const RECON_WHERE = { R1: 'Totals Summary vs Settled Batches', R2: 'Settled Batches vs ACH Deposit', R3: 'Settled Batches vs Search Transactions (counts)', R4: 'Daily Discount Calculator vs Settled Batches',
+  R5: 'ACH Deposit vs What is Included', R6: 'Dashboard Business Overview vs Totals Summary', R7: 'Merchant Statements vs Chargebacks', R8: 'Partner Hub orders', R9: 'Search Transactions vs Settled Batches (amounts)' };
+function pageReconReport() {
+  const r = runRecon();
+  const fmt = (c, v) => RECON_MONEY.indexOf(c.id) !== -1 ? money(v) : String(v);
+  let h = head('Reconciliation Report', 'Reports /', '<button class="btn btn-primary" data-action="recon-rerun" data-testid="recon-run">Run checks</button>');
+  h += '<div class="banner b-' + (r.allPassed ? 'ok' : 'error') + '" data-testid="recon-overall" data-status="' + (r.allPassed ? 'PASS' : 'FAIL') + '">' +
+    (r.allPassed ? 'All ' + r.checks.length + ' checks passed — every report agrees.' : r.failed + ' of ' + r.checks.length + ' checks failed — some reports disagree. Open the offending records to see where.') + '</div>';
+  h += '<p class="note">Last generated ' + us(S.today) + '. Each check compares the same figures as shown by two different reports over the full data range (01/01/2026 – 11/15/2026).</p>';
+  h += table({ id: 'recon-report', title: 'Reconciliation Report', period: 'All data', rows: r.checks, key: c => c.id, cols: [
+    { key: 'id', label: 'Check' }, { key: 'where', label: 'Reports compared', val: c => RECON_WHERE[c.id] }, { key: 'name', label: 'Rule' },
+    { key: 'status', label: 'Result', render: c => '<span class="badge b-' + (c.status === 'PASS' ? 'ok' : 'error') + '" data-testid="recon-status-' + c.id + '">' + c.status + '</span>' },
+    { key: 'expected', label: 'Expected', num: true, render: c => esc(fmt(c, c.expected)), csv: c => c.expected },
+    { key: 'actual', label: 'Actual', num: true, render: c => esc(fmt(c, c.actual)), csv: c => c.actual },
+    { key: 'variance', label: 'Variance', num: true, render: c => '<span data-testid="recon-variance-' + c.id + '">' + esc(fmt(c, c.variance)) + '</span>', csv: c => c.variance },
+    DETAILS_COL,
+    { key: 'offending', label: 'Offending records', nosort: true, val: c => c.offending.join(' '), render: c => c.offending.slice(0, 6).map(x => reconLink(x, c.id)).join(', ') + (c.offending.length > 6 ? ' … +' + (c.offending.length - 6) : '') }] });
+  return layout(h, 'reports');
+}
+
+/* ---------- reconciliation "Details": which filters/dates to check ---------- */
+function monthLabel(m) { return MONTHS[+m.slice(5) - 1].slice(0, 3) + ' ' + m.slice(0, 4); }
+function mLink(rep, m) { return { t: monthLabel(m), h: '#/reports/' + rep + '?mode=month&month=' + (+m.slice(5)) + '&year=' + m.slice(0, 4) }; }
+function reconDetails(c) {
+  const full = us(DATA_START) + ' – ' + us(DATA_END); const months = fullMonths().concat([DATA_END.slice(0, 7)]);
+  const span = monthLabel(months[0]) + ' – ' + monthLabel(months[months.length - 1]);
+  const lm = fullMonths().slice(-1)[0];
+  let pre, items = [];
+  const off = c.offending;
+  switch (c.id) {
+    case 'R1': pre = off.length ? 'Filter Totals Summary and Settled Batches By Month:' : 'Checked By Month, ' + span + ' (Totals Summary vs Settled Batches).';
+      items = off.map(m => mLink('totals-summary', m)); break;
+    case 'R2': pre = 'Checked By Date Range ' + full + ' (Settled Batches vs ACH Deposit, Checking Deposit rows).'; break;
+    case 'R3': pre = off.length ? 'Filter Settled Batches and Search Transactions:' : 'Checked By Month, ' + span + ', and By Date Range ' + full + '.';
+      items = off.map(m => m === 'range' ? { t: 'By Date Range ' + full, h: '#/reports/search-transactions?mode=range&from=' + DATA_START + '&to=' + DATA_END } : mLink('settled-batches', m)); break;
+    case 'R4': pre = off.length ? 'Filter Daily Discount Calculator By Day:' : 'Checked By Month, ' + monthLabel(lm) + ' (DAILY TOTAL rows vs Settled Batches).';
+      items = off.map(d => ({ t: us(d), h: '#/reports/discount-calculator?mode=day&date=' + d })); break;
+    case 'R5': pre = off.length ? 'Filter ACH Deposit By Day and open "What is included" for:' : 'Checked every Checking Deposit, ' + full + '.';
+      items = off.map(id => { const a = D.ach.find(x => x.id === id); return { t: us(a.depositDate) + ' (' + id + ')', h: '#/reports/ach-deposit/included/' + id }; }); break;
+    case 'R6': pre = off.length ? 'Compare Dashboard → Business Overview with Totals Summary By Year:' : 'Checked By Year ' + YEARS.join(', ') + ' (Business Overview vs Totals Summary).';
+      items = off.map(y => ({ t: 'Year ' + y, h: '#/reports/totals-summary?mode=year&year=' + y })); break;
+    case 'R7': pre = off.length ? 'Open these statements and compare with Chargebacks By Month:' : 'Checked statements ' + monthLabel(fullMonths()[0]) + ' – ' + monthLabel(lm) + ' against Chargebacks By Month.';
+      items = off.map(m => ({ t: monthLabel(m), h: '#/reports/merchant-statements/' + m })); break;
+    case 'R8': pre = off.length ? 'Open the review/confirmation for:' : 'Checked ' + S.apps.filter(a => a.order).length + ' submitted equipment order(s).';
+      items = off.map(id => ({ t: id, h: '#/iso/' + id + '/confirmation' })); break;
+    case 'R9': pre = off.length ? 'Filter Search Transactions and Settled Batches By Month:' : 'Checked By Month, ' + span + ' (Search Transactions vs Settled Batches).';
+      items = off.map(m => mLink('search-transactions', m)); break;
+  }
+  const shown = items.slice(0, 8);
+  return { text: pre + (items.length ? ' ' + items.map(i => i.t).join(', ') : ''),
+    html: esc(pre) + (shown.length ? ' ' + shown.map(i => '<a href="' + i.h + '">' + esc(i.t) + '</a>').join(', ') + (items.length > 8 ? ' … +' + (items.length - 8) : '') : '') };
+}
+const DETAILS_COL = { key: 'details', label: 'Details', nosort: true, val: c => reconDetails(c).text, render: c => '<span data-testid="recon-details-' + c.id + '">' + reconDetails(c).html + '</span>' };
 
 /* =====================================================================
    Pages: dashboard, platforms, profile, users, password,
@@ -846,6 +927,21 @@ function pageIsoConfirm(id) {
 }
 
 /* ---------- QA console ---------- */
+// which bugs each requirement (reconciliation check) reproduces
+const CHECK_BUGS = { R1: ['BUG-01'], R2: [], R3: ['BUG-02', 'BUG-13'], R4: ['BUG-07'], R5: ['BUG-08'], R6: ['BUG-01'], R7: [], R8: ['BUG-10'], R9: ['BUG-14'] };
+const BUG_HINT = { 'BUG-10': 'needs a submitted equipment order' };
+const SCREEN_BUGS = ['BUG-03', 'BUG-04', 'BUG-05', 'BUG-06', 'BUG-09', 'BUG-11', 'BUG-12'];
+function bugChip(id, failing, testid) {
+  const on = bug(id); const st = !on ? 'off' : failing ? 'reproduced' : 'on, not triggered yet' + (BUG_HINT[id] ? ' (' + BUG_HINT[id] + ')' : '');
+  return '<span class="bchip ' + (!on ? 'b-off' : failing ? 'b-rep' : 'b-wait') + '" data-testid="' + testid + '" data-state="' + (!on ? 'off' : failing ? 'reproduced' : 'pending') + '">' + id + ' · ' + st + '</span>';
+}
+const BUGS_COL = { key: 'bugs', label: 'Bugs reproduced', nosort: true,
+  val: c => CHECK_BUGS[c.id].map(id => id + (bug(id) ? (c.status === 'FAIL' ? ' reproduced' : ' on') : ' off')).join('; ') || 'none (data integrity)',
+  render: c => '<div class="bchips" data-testid="recon-bugs-' + c.id + '">' + (CHECK_BUGS[c.id].length ? CHECK_BUGS[c.id].map(id => bugChip(id, c.status === 'FAIL', 'recon-bug-' + c.id + '-' + id)).join('') : '<span class="muted small">No linked bug (data-integrity check)</span>') + '</div>' };
+function screenBugsBox() {
+  return '<div class="screenbugs" data-testid="screen-bugs"><strong>Bugs not covered by R1–R9</strong> <span class="muted small">(they change one screen only, so test them on that screen; see the answer key)</span><div class="bchips">' +
+    SCREEN_BUGS.map(id => '<span class="bchip ' + (bug(id) ? 'b-wait' : 'b-off') + '" data-testid="screen-bug-' + id + '">' + id + ' · ' + (bug(id) ? 'on' : 'off') + '</span>').join('') + '</div></div>';
+}
 function pageQa() {
   const r = UI.lastRecon || runRecon(); UI.lastRecon = null;
   let h = head('QA Console', '') + '<div class="grid2"><div class="card"><div class="ctitle">Defect flags <span class="muted small" data-testid="qa-active-count">(' + S.bugs.length + ' active)</span></div><div class="bugs">' +
@@ -858,8 +954,8 @@ function pageQa() {
     '<div class="banner b-' + (r.allPassed ? 'ok' : 'error') + '" data-testid="qa-recon-overall" data-status="' + (r.allPassed ? 'PASS' : 'FAIL') + '">' + (r.allPassed ? 'All ' + r.checks.length + ' checks passed' : r.failed + ' of ' + r.checks.length + ' checks failed') + '</div>' +
     table({ id: 'recon-table', title: 'Reconciliation', rows: r.checks, key: c => c.id, cols: [{ key: 'id', label: 'Check' }, { key: 'name', label: 'Description' },
       { key: 'status', label: 'Result', render: c => '<span class="badge b-' + (c.status === 'PASS' ? 'ok' : 'error') + '" data-testid="recon-status-' + c.id + '">' + c.status + '</span>' },
-      { key: 'expected', label: 'Expected', num: true }, { key: 'actual', label: 'Actual', num: true }, { key: 'variance', label: 'Variance', num: true }, { key: 'offending', label: 'Offending', val: c => c.offending.slice(0, 6).join(', ') }] }) + '</div>';
-  h += '<div class="card"><div class="ctitle">window.QA</div><pre>QA.reset(seed?) · QA.getState() · QA.setBugs(["BUG-01"] | "all" | "none") · QA.getActiveBugs()\nQA.runReconciliation() · QA.exportCsv(tableId) · QA.setToday("2026-02-10")\nURL: ?bugs=none|all|BUG-01,BUG-07  ?seed=1001  ?today=2026-02-10</pre></div>';
+      { key: 'expected', label: 'Expected', num: true }, { key: 'actual', label: 'Actual', num: true }, { key: 'variance', label: 'Variance', num: true }, { key: 'offending', label: 'Offending', val: c => c.offending.slice(0, 6).join(', ') }, BUGS_COL, DETAILS_COL] }) + screenBugsBox() + '</div>';
+  h += '<div class="card"><div class="ctitle">window.QA</div><pre>QA.reset(seed?) · QA.getState() · QA.setBugs(["BUG-01"] | "all" | "none") · QA.getActiveBugs()\nQA.runReconciliation() · QA.exportCsv(tableId) · QA.setToday("2026-11-16")\nURL: ?bugs=none|all|BUG-01,BUG-07  ?seed=1001  ?today=2026-11-16</pre></div>';
   return layout(h, 'qa');
 }
 
@@ -871,6 +967,7 @@ function render() {
     if (p[0] === 'dashboard' || !p[0]) html = pageDashboard();
     else if (p[0] === 'platforms') html = pagePlatform(p[1]);
     else if (p[0] === 'reports' && !p[1]) html = pageReportsHub();
+    else if (p[0] === 'reports' && p[1] === 'reconciliation') html = pageReconReport();
     else if (p[0] === 'reports' && p[1] === 'merchant-statements' && p[2]) html = pageStatement(p[2]);
     else if (p[0] === 'reports' && p[1] === 'ach-deposit' && p[2] === 'included') html = pageAchIncluded(p[3]);
     else if (p[0] === 'reports') html = pageReport(p[1], r.q);
@@ -995,6 +1092,7 @@ function onClick(e) {
     case 'qa-reset': { const s = parseInt($('#qa-seed').value, 10); QA.reset(isNaN(s) ? DEFAULT_SEED : s); toast('success', 'Data reset.'); break; }
     case 'qa-today': QA.setToday($('#qa-today').value); toast('success', 'Business date set to ' + us(S.today) + '.'); break;
     case 'qa-recon': UI.lastRecon = runRecon(); render(); break;
+    case 'recon-rerun': render(); toast('info', 'Checks re-run.'); break;
   }
 }
 function onChange(e) {

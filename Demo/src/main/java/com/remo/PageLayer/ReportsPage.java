@@ -486,7 +486,7 @@ public class ReportsPage extends BaseClass {
 
 	public String getRefundAmount() {
 		try {
-			return refundItems.getText();
+			return refundAmount.getText();
 		} catch (Exception e) {
 			test.log(Status.FAIL, "Faliled to fetch " + "Refund Amount");
 			return null;
@@ -508,14 +508,16 @@ public class ReportsPage extends BaseClass {
 		// Sales amount - refund =Total Sub,itted Amount
 
 		Long salesAmount = parseMoneyToCents(getSalesAmount());
-		System.out.println("Sales Amount: " + salesAmount);
+		System.out.println("Sales Amount displayed: " + salesAmount);
 
 		Long refundAmount = parseMoneyToCents(getRefundAmount());
-		System.out.println("Sales Amount: " + refundAmount);
+		System.out.println("Refund Amount displayed: " + refundAmount);
 
 		Long totalSumbittedAmount = parseMoneyToCents(getTotalSubmittedAmount());
-		System.out.println("Total Sumbitted Amount: " + totalSumbittedAmount);
+		System.out.println("Total Sumbitted Amount displayed: " + totalSumbittedAmount);
 		Long expectedtotalSumbittedAmount = salesAmount - refundAmount;
+
+		System.out.println("Total Sumbitted Amount Expected :" + expectedtotalSumbittedAmount);
 
 		if (totalSumbittedAmount == expectedtotalSumbittedAmount) {
 			test.log(Status.PASS, "Summury calulations is correct");
@@ -523,11 +525,9 @@ public class ReportsPage extends BaseClass {
 
 		} else {
 			test.log(Status.FAIL,
-					String.format(
-							"Net Sales Caludcation issue,  Toatl Submitted amout and Sales amount is smae when Refund is present \n"
-									+
-									"Expected Toatl submitted Amount: " + expectedtotalSumbittedAmount + " found: "
-									+ totalSumbittedAmount));
+					"Net Sales Caludcation issue,  Toatl Submitted amout and Sales amount is smae when Refund is present");
+			test.log(Status.FAIL, "Expected Toatl submitted Amount: " + expectedtotalSumbittedAmount + " found: "
+					+ totalSumbittedAmount);
 			return false;
 		}
 
