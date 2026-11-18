@@ -55,67 +55,70 @@ public class ReportsTest extends BaseTest {
 
 	}
 
-	// @Test(priority =4)
-	public void verifySettledBatchesReportFunctionality() {
-		test = extent.createTest("Verify Functionality of Settled BatchesReport");
-		SoftAssert a = new SoftAssert();
-		assertTrue(reportsP.verifySettledBatchesReport());
+	// // @Test(priority =4)
+	// public void verifySettledBatchesReportFunctionality() {
+	// test = extent.createTest("Verify Functionality of Settled BatchesReport");
+	// SoftAssert a = new SoftAssert();
+	// assertTrue(reportsP.verifySettledBatchesReport());
 
-		// a.assertTrue(reports.verifyDownloadPdfFunctionality("Settled Batches"));
-		// a.assertTrue(reports.verifyDownloadExcelFunctionality("Settled_Batches"));
-		// a.assertTrue(reports.verifyClearFilterFunctionalityForSettledBatches());
+	// // a.assertTrue(reports.verifyDownloadPdfFunctionality("Settled Batches"));
+	// // a.assertTrue(reports.verifyDownloadExcelFunctionality("Settled_Batches"));
+	// // a.assertTrue(reports.verifyClearFilterFunctionalityForSettledBatches());
 
-		a.assertAll();
-	}
+	// a.assertAll();
+	// }
 
-	// @Test(priority = 5)
-	public void verifyACHReportFunctionality() {
-		test = extent.createTest("Verify functionality of ACH Report");
-		SoftAssert a = new SoftAssert();
-		a.assertTrue(reportsP.verifyACHReport());
-		a.assertTrue(reportsP.verifyFilterByMonth());
-		a.assertTrue(reportsP.verifyFilterByDay());
-		a.assertTrue(reportsP.VerifyFilterByDateRange("dateRange"));
-		a.assertTrue(reportsP.verifyDownloadPdfFunctionality("ACH"));
-		a.assertTrue(reportsP.verifyDownloadExcelFunctionality("ACH"));
-		assertTrue(reportsP.verifyClearFilterFunctionalityForACH());
-	}
+	// // @Test(priority = 5)
+	// public void verifyACHReportFunctionality() {
+	// test = extent.createTest("Verify functionality of ACH Report");
+	// SoftAssert a = new SoftAssert();
+	// a.assertTrue(reportsP.verifyACHReport());
+	// a.assertTrue(reportsP.verifyFilterByMonth());
+	// a.assertTrue(reportsP.verifyFilterByDay());
+	// a.assertTrue(reportsP.VerifyFilterByDateRange("dateRange"));
+	// a.assertTrue(reportsP.verifyDownloadPdfFunctionality("ACH"));
+	// a.assertTrue(reportsP.verifyDownloadExcelFunctionality("ACH"));
+	// assertTrue(reportsP.verifyClearFilterFunctionalityForACH());
+	// }
 
-	// @Test(priority =5)
-	public void verifySearchTransactionReportFunctionality() {
-		test = extent.createTest("Verify functionality of Search Transaction Report");
-		SoftAssert a = new SoftAssert();
-		a.assertTrue(reportsP.verifySearchTransaction());
-		a.assertTrue(reportsP.verifyClearFilterFunctionalityForSearchTransactions());
-		a.assertTrue(reportsP.verifyDownloadPdfFunctionality("Search Transactions"));
-		a.assertTrue(reportsP.verifyDownloadExcelFunctionality("Search Transactions"));
-		a.assertAll();
-	}
+	// // @Test(priority =5)
+	// public void verifySearchTransactionReportFunctionality() {
+	// test = extent.createTest("Verify functionality of Search Transaction
+	// Report");
+	// SoftAssert a = new SoftAssert();
+	// a.assertTrue(reportsP.verifySearchTransaction());
+	// a.assertTrue(reportsP.verifyClearFilterFunctionalityForSearchTransactions());
+	// a.assertTrue(reportsP.verifyDownloadPdfFunctionality("Search Transactions"));
+	// a.assertTrue(reportsP.verifyDownloadExcelFunctionality("Search
+	// Transactions"));
+	// a.assertAll();
+	// }
 
-	// @Test(priority =7)
-	public void verifyMerchantStatementReportFunctionality() {
-		test = extent.createTest("Verify Functionality of Merchant Statement Report");
-		SoftAssert a = new SoftAssert();
-		a.assertTrue(reportsP.verifyMerchantStatementReport());
-		a.assertTrue(reportsP.verifyDownloadPdfFunctionality("Merchant"));
-		a.assertTrue(reportsP.verifyDownloadExcelFunctionality("Merchant"));
-		a.assertTrue(reportsP.verifyClearFilterFunctionalityForMerchantStatement());
-		a.assertAll();
-	}
+	// // @Test(priority =7)
+	// public void verifyMerchantStatementReportFunctionality() {
+	// test = extent.createTest("Verify Functionality of Merchant Statement
+	// Report");
+	// SoftAssert a = new SoftAssert();
+	// a.assertTrue(reportsP.verifyMerchantStatementReport());
+	// a.assertTrue(reportsP.verifyDownloadPdfFunctionality("Merchant"));
+	// a.assertTrue(reportsP.verifyDownloadExcelFunctionality("Merchant"));
+	// a.assertTrue(reportsP.verifyClearFilterFunctionalityForMerchantStatement());
+	// a.assertAll();
+	// }
 
-	// @Test(priority =9)
-	public void verifyChargebacksReportFunctionality() {
-		test = extent.createTest("Verify Functionality of Chargebacks Report");
-		SoftAssert a = new SoftAssert();
+	// // @Test(priority =9)
+	// public void verifyChargebacksReportFunctionality() {
+	// test = extent.createTest("Verify Functionality of Chargebacks Report");
+	// SoftAssert a = new SoftAssert();
 
-		a.assertTrue(reportsP.verifyChargebacksReport());
-		a.assertTrue(reportsP.verifyDownloadPdfFunctionality("Chargebacks"));
-		a.assertTrue(reportsP.verifyDownloadPdfFunctionality("Chargebacks"));
-		a.assertTrue(reportsP.verifyLast4digitOfCards());
-		a.assertTrue(reportsP.verifyClearFilterFunctionalityForChargeBacks());
+	// a.assertTrue(reportsP.verifyChargebacksReport());
+	// a.assertTrue(reportsP.verifyDownloadPdfFunctionality("Chargebacks"));
+	// a.assertTrue(reportsP.verifyDownloadPdfFunctionality("Chargebacks"));
+	// a.assertTrue(reportsP.verifyLast4digitOfCards());
+	// a.assertTrue(reportsP.verifyClearFilterFunctionalityForChargeBacks());
 
-		a.assertAll();
-	}
+	// a.assertAll();
+	// }
 
 	// @Test(priority =7)
 	// public void verifyDailyUploadReportFunctionality() {
