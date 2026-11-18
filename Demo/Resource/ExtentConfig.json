@@ -1,0 +1,13 @@
+{
+  "theme": "STANDARD",
+  "encoding": "utf-8",
+  "protocol": "HTTPS",
+  "timelineEnabled": false,
+  "offlineMode": true,
+  "thumbnailForBase64": true,
+  "documentTitle": "M360 Testing Report",
+  "reportName": "M360 Testing Report",
+  "timeStampFormat": "EEEE, MMMM dd, yyyy, hh:mm a'('zzz')'",
+  "js": "",
+  "css": ""
+}
