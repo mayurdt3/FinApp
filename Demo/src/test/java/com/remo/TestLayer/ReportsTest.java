@@ -83,12 +83,38 @@ public class ReportsTest extends BaseTest {
 
 		test = extent.createTest(" Buisness Overview Batch total= Σ Totals Summary total submitted (per month)");
 
-		reportsP.navigateToSearchTransactions();
+		// reportsP.navigateToSearchTransactions();
 		SoftAssert a = new SoftAssert();
 		a.assertTrue(reportsP.VerifyOverviewBatchTotalWithSummaryTotal());
 		a.assertAll();
 
 	}
+
+	@Test(priority = 6)
+	public void VerifyDailyDiscountCalculatorVsBatchamounts() {
+
+		test = extent.createTest(" Verify card-type totals = deposit amount");
+
+		
+		SoftAssert a = new SoftAssert();
+		a.assertTrue(reportsP.verifyACHDepositReportTransactionData());
+		a.assertAll();
+
+	}
+
+	@Test(priority = 6)
+	public void VerifyACHTransactionDataAndRecords() {
+
+		test = extent.createTest(" Verify card-type totals = deposit amount");
+
+		
+		SoftAssert a = new SoftAssert();
+		a.assertTrue(reportsP.verifyACHDepositReportTransactionData());
+		a.assertAll();
+
+	}
+
+	//
 
 	// // @Test(priority =4)
 	// public void verifySettledBatchesReportFunctionality() {

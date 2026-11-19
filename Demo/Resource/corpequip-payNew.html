@@ -96,7 +96,7 @@ const DATA_START = '2026-01-01';
 const DATA_END = '2026-11-15';
 const YEARS = ['2026', '2025'];
 const PAGE_SIZE = 10;
-const BUG_IDS = ['BUG-01', 'BUG-02', 'BUG-03', 'BUG-04', 'BUG-05', 'BUG-06', 'BUG-07', 'BUG-08', 'BUG-09', 'BUG-10', 'BUG-11', 'BUG-12', 'BUG-13', 'BUG-14'];
+const BUG_IDS = ['BUG-01', 'BUG-02', 'BUG-03', 'BUG-04', 'BUG-05', 'BUG-06', 'BUG-07', 'BUG-08', 'BUG-09', 'BUG-10', 'BUG-11', 'BUG-12', 'BUG-13', 'BUG-14', 'BUG-15'];
 
 let S = null;   // persisted state
 let D = null;   // generated (deterministic) merchant data
@@ -336,6 +336,9 @@ function trend15() {
 
 /* ---------- ISO order maths ---------- */
 function isoPrice(app, item) { return (app.program === 'free' && item.cat === 'terminals' && !bug('BUG-09')) ? 0 : item.price; }
+// a payment covers the order as it was when paid (cart lines + shipping method)
+function orderSig(app) { return JSON.stringify([app.cart.map(l => [l.sku, l.qty, l.price]), app.shipMethod]); }
+function paymentValid(app) { return !!app.payment && (bug('BUG-15') || app.payment.sig === orderSig(app)); }
 function isoTotals(app) {
   const sub = app.cart.reduce((a, l) => a + l.price * l.qty, 0);
   const sm = SHIP_METHODS.find(m => m[0] === app.shipMethod); const ship = sm ? sm[2] : 0;
@@ -373,6 +376,9 @@ function runRecon() {
   const off9 = []; let e9 = 0, a9 = 0;
   allMonths.forEach(m => { const b = sum(rptBatches(mq(m)).rows, x => x.amount), t = searchNet(rptSearch(mq(m)).rows); e9 += b; a9 += t; if (b !== t) off9.push(m); });
   add('R9', 'Search Transactions net total = Σ settled batch amounts (per month)', e9, a9, off9);
+  const off10 = []; let e10 = 0, a10 = 0;
+  subs.filter(a => a.order.lines.length).forEach(a => { const due = sum(a.order.lines, l => l.price * l.qty) + a.order.ship; const paid = a.order.paid || 0; e10 += due; a10 += paid; if (paid !== due) off10.push(a.id); });
+  add('R10', 'Submitted equipment orders are fully paid: amount paid = Σ lines + shipping', e10, a10, off10);
   return { ranAt: S.today, activeBugs: S.bugs.slice(), allPassed: checks.every(c => c.status === 'PASS'), passed: checks.filter(c => c.status === 'PASS').length, failed: checks.filter(c => c.status === 'FAIL').length, checks: checks };
 }
 
@@ -644,7 +650,7 @@ function pagePdf(id, q) {
 }
 
 /* ---------- reconciliation report (cross-report consistency) ---------- */
-const RECON_MONEY = ['R1', 'R2', 'R4', 'R6', 'R9'];
+const RECON_MONEY = ['R1', 'R2', 'R4', 'R6', 'R9', 'R10'];
 function reconLink(id, chk) {
   if (/^\d{4}-\d{2}$/.test(id) && (chk === 'R3' || chk === 'R9')) return '<a href="#/reports/' + (chk === 'R3' ? 'settled-batches' : 'search-transactions') + '?mode=month&month=' + (+id.slice(5)) + '&year=' + id.slice(0, 4) + '">' + id + '</a>';
   if (id === 'range') return '<a href="#/reports/search-transactions?mode=range&from=' + DATA_START + '&to=' + DATA_END + '">full date range</a>';
@@ -657,7 +663,7 @@ function reconLink(id, chk) {
   return esc(id);
 }
 const RECON_WHERE = { R1: 'Totals Summary vs Settled Batches', R2: 'Settled Batches vs ACH Deposit', R3: 'Settled Batches vs Search Transactions (counts)', R4: 'Daily Discount Calculator vs Settled Batches',
-  R5: 'ACH Deposit vs What is Included', R6: 'Dashboard Business Overview vs Totals Summary', R7: 'Merchant Statements vs Chargebacks', R8: 'Partner Hub orders', R9: 'Search Transactions vs Settled Batches (amounts)' };
+  R5: 'ACH Deposit vs What is Included', R6: 'Dashboard Business Overview vs Totals Summary', R7: 'Merchant Statements vs Chargebacks', R8: 'Partner Hub orders', R10: 'Partner Hub orders vs payments', R9: 'Search Transactions vs Settled Batches (amounts)' };
 function pageReconReport() {
   const r = runRecon();
   const fmt = (c, v) => RECON_MONEY.indexOf(c.id) !== -1 ? money(v) : String(v);
@@ -700,6 +706,8 @@ function reconDetails(c) {
     case 'R7': pre = off.length ? 'Open these statements and compare with Chargebacks By Month:' : 'Checked statements ' + monthLabel(fullMonths()[0]) + ' – ' + monthLabel(lm) + ' against Chargebacks By Month.';
       items = off.map(m => ({ t: monthLabel(m), h: '#/reports/merchant-statements/' + m })); break;
     case 'R8': pre = off.length ? 'Open the review/confirmation for:' : 'Checked ' + S.apps.filter(a => a.order).length + ' submitted equipment order(s).';
+      items = off.map(id => ({ t: id, h: '#/iso/' + id + '/confirmation' })); break;
+    case 'R10': pre = off.length ? 'Open these applications and compare the amount paid with the order total:' : 'Checked ' + S.apps.filter(a => a.order && a.order.lines.length).length + ' submitted equipment order(s) for full payment.';
       items = off.map(id => ({ t: id, h: '#/iso/' + id + '/confirmation' })); break;
     case 'R9': pre = off.length ? 'Filter Search Transactions and Settled Batches By Month:' : 'Checked By Month, ' + span + ' (Search Transactions vs Settled Batches).';
       items = off.map(m => mLink('search-transactions', m)); break;
@@ -892,7 +900,10 @@ function pageIsoEquip(id) {
     (a.cart.length ? a.cart.map(l => '<tr data-testid="cart-line-' + l.sku + '"><td>' + esc(l.name) + '</td><td class="num">' + l.qty + '</td><td class="num">' + money(l.price) + '</td><td class="num">' + money(l.price * l.qty) + '</td><td><button class="del" data-action="iso-del" data-sku="' + l.sku + '" data-testid="cart-remove-' + l.sku + '">✕</button></td></tr>').join('') : '<tr><td colspan="5" class="emptycart" data-testid="cart-empty">Your Cart is Empty</td></tr>') +
     '</tbody></table><div class="sumbox"><div><span>Subtotal</span><span data-testid="summary-subtotal">' + money(T.sub) + '</span></div><div><span>Shipping and Handling</span><span data-testid="summary-shipping">' + money(T.ship) + '</span></div><div class="tot"><span>Total</span><span data-testid="summary-total">' + money(T.total) + '</span></div></div>' +
     '<div class="btnrow"><button class="btn" data-action="iso-reopen" data-testid="equip-options-open">Equipment Options</button><button class="btn" data-action="iso-edit" data-testid="edit-application">Edit Application</button>' +
-    '<button class="btn btn-primary" data-action="iso-shipping" data-testid="shipping-btn"' + (a.cart.length ? '' : ' disabled') + '>Shipping</button></div></div></div>';
+    (a.payment && paymentValid(a) ? '<a class="btn btn-primary" href="#/iso/' + a.id + '/review" data-testid="continue-review-btn">Continue to Review</a>'
+      : a.payment ? '<button class="btn btn-primary" data-action="iso-repay" data-testid="repay-btn"' + (a.cart.length ? '' : ' disabled') + '>Proceed to Payment</button>'
+      : '<button class="btn btn-primary" data-action="iso-shipping" data-testid="shipping-btn"' + (a.cart.length ? '' : ' disabled') + '>Shipping</button>') + '</div></div></div>';
+  if (a.payment && !paymentValid(a)) h = h.replace('<div class="isogrid">', '<div class="banner b-error" data-testid="payment-stale-banner">You changed the equipment after paying ' + money(a.payment.amount) + '. Pay for the updated order (' + money(T.total) + ') before submitting.</div><div class="isogrid">');
   return layout(h + isoModal(a), 'iso');
 }
 function shipText(a) {
@@ -911,7 +922,8 @@ function pageIsoReview(id) {
   else h += '<div class="card"><div class="ctitle">Equipment</div><table class="mini" data-testid="review-equipment"><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Total</th></tr></thead><tbody>' +
     a.cart.map(l => '<tr><td>' + esc(l.name) + '</td><td class="num">' + l.qty + '</td><td class="num">' + money(l.price) + '</td><td class="num">' + money(l.price * l.qty) + '</td></tr>').join('') + '</tbody></table>' +
     '<div class="grid2 mt"><div><div class="muted small">Shipping Destination</div><span data-testid="review-ship-to">' + esc(shipText(a)) + '</span></div><div><div class="muted small">Shipping Method</div><span data-testid="review-ship-method">' + (sm ? sm[1] + ' (' + money(sm[2]) + ')' : '—') + '</span></div>' +
-    '<div><div class="muted small">Payment</div><span data-testid="review-payment">' + esc(a.payment ? a.payment.label : '—') + '</span></div></div>' +
+    '<div><div class="muted small">Payment</div><span data-testid="review-payment">' + esc(a.payment ? a.payment.label : '—') + '</span>' +
+      (a.payment && !paymentValid(a) ? '<div class="ferr" data-testid="review-payment-stale">Not paid for the current order — <a href="#/iso/' + a.id + '">go back and pay</a>.</div>' : '') + '</div></div>' +
     '<div class="sumbox"><div><span>Subtotal</span><span data-testid="review-subtotal">' + money(T.sub) + '</span></div><div><span>Shipping and Handling</span><span data-testid="review-shipping">' + money(T.ship) + '</span></div><div class="tot"><span>Total</span><span data-testid="review-total">' + money(T.reviewTotal) + '</span></div></div></div>';
   h += '<div class="btnrow end"><a class="btn" href="#/iso/' + id + '" data-testid="review-edit">Edit Application</a><button class="btn btn-primary" data-action="iso-submit" data-id="' + id + '" data-testid="submit-application">Submit Application</button></div>';
   return layout(h, 'iso');
@@ -922,14 +934,14 @@ function pageIsoConfirm(id) {
     '<div class="ctitle">Application Successfully Completed!</div><p>Congratulations, application <strong data-testid="confirmation-app-id">' + a.id + '</strong> for ' + esc(a.dba) + ' is pending approval. Please contact your representative for further status updates.</p>' +
     '<p>Once the account is set up and ready for processing, the merchant will receive a welcome letter with important information.</p>' +
     '<div class="ctitle">Representative Details</div><p>Jordan Blake<br><a href="mailto:jordan.blake@partner-iso.test">jordan.blake@partner-iso.test</a></p>' +
-    '<div class="ctitle">Information Regarding Equipment Purchase</div><p>Order total: <strong data-testid="confirmation-total">' + money(a.order.total) + '</strong>. The merchant may see a nominal authorization charge today; the full amount is not charged until the account is activated.</p>' +
+    '<div class="ctitle">Information Regarding Equipment Purchase</div><p>Order total: <strong data-testid="confirmation-total">' + money(a.order.total) + '</strong> Amount paid: <strong data-testid="confirmation-paid">' + money(a.order.paid || 0) + '</strong>. The merchant may see a nominal authorization charge today; the full amount is not charged until the account is activated.</p>' +
     '<a class="btn btn-primary" href="#/iso" data-testid="back-to-applications">Back to applications</a></div></div>', 'iso');
 }
 
 /* ---------- QA console ---------- */
 // which bugs each requirement (reconciliation check) reproduces
-const CHECK_BUGS = { R1: ['BUG-01'], R2: [], R3: ['BUG-02', 'BUG-13'], R4: ['BUG-07'], R5: ['BUG-08'], R6: ['BUG-01'], R7: [], R8: ['BUG-10'], R9: ['BUG-14'] };
-const BUG_HINT = { 'BUG-10': 'needs a submitted equipment order' };
+const CHECK_BUGS = { R1: ['BUG-01'], R2: [], R3: ['BUG-02', 'BUG-13'], R4: ['BUG-07'], R5: ['BUG-08'], R6: ['BUG-01'], R7: [], R8: ['BUG-10'], R9: ['BUG-14'], R10: ['BUG-15'] };
+const BUG_HINT = { 'BUG-10': 'needs a submitted equipment order', 'BUG-15': 'needs an order edited after payment, then submitted' };
 const SCREEN_BUGS = ['BUG-03', 'BUG-04', 'BUG-05', 'BUG-06', 'BUG-09', 'BUG-11', 'BUG-12'];
 function bugChip(id, failing, testid) {
   const on = bug(id); const st = !on ? 'off' : failing ? 'reproduced' : 'on, not triggered yet' + (BUG_HINT[id] ? ' (' + BUG_HINT[id] + ')' : '');
@@ -1055,6 +1067,7 @@ function onClick(e) {
     case 'iso-del': ap.cart = ap.cart.filter(l => l.sku !== d.sku); render(); break;
     case 'iso-edit': toast('info', 'Editing the merchant application is not part of this demo.'); break;
     case 'iso-shipping': UI.modal = 'dest'; UI.isoSel = null; render(); break;
+    case 'iso-repay': UI.payMethod = null; UI.modal = 'payment'; render(); break;
     case 'iso-dest': UI.isoSel = d.v; if (d.v === 'custom') UI.modal = 'custom'; render(); break;
     case 'iso-custom-close': UI.modal = 'dest'; render(); break;
     case 'iso-custom-save': {
@@ -1077,14 +1090,16 @@ function onClick(e) {
         else if (!g('cc-street') || !g('cc-city') || !/^[A-Za-z]{2}$/.test(g('cc-state')) || !/^\d{5}$/.test(g('cc-zip'))) err = 'Complete the billing address.';
         if (err) { setErr('pay-error', err); break; }
         ap.payment = { method: 'card', label: 'Credit card ••••' + num.slice(-4) + ' (authorized ' + money(isoTotals(ap).total) + ')' };
-      } else ap.payment = { method: UI.payMethod, label: UI.payMethod === 'merchant' ? 'Bill Merchant' : 'Bill ISO' };
+      } else ap.payment = { method: UI.payMethod, label: (UI.payMethod === 'merchant' ? 'Bill Merchant' : 'Bill ISO') + ' (' + money(isoTotals(ap).total) + ')' };
+      ap.payment.amount = isoTotals(ap).total; ap.payment.sig = orderSig(ap);
       UI.modal = null; saveState(); location.hash = '#/iso/' + ap.id + '/review'; break;
     }
     case 'iso-submit': {
       const x = app(d.id); UI.reviewError = '';
       if (x.equip === 'select' && (!x.cart.length || !x.shipTo || !x.shipMethod || !x.payment)) { UI.reviewError = 'Complete equipment, shipping destination, shipping method and payment before submitting.'; render(); break; }
+      if (x.equip === 'select' && !paymentValid(x)) { UI.reviewError = 'The equipment changed after payment. Pay for the updated order before submitting.'; render(); break; }
       const T = isoTotals(x);
-      x.order = { lines: clone(x.cart), sub: T.sub, ship: x.equip === 'select' ? T.ship : 0, total: x.equip === 'select' ? T.reviewTotal : 0 };
+      x.order = { lines: clone(x.cart), sub: T.sub, ship: x.equip === 'select' ? T.ship : 0, total: x.equip === 'select' ? T.reviewTotal : 0, paid: x.equip === 'select' ? x.payment.amount : 0 };
       x.status = 'Submitted'; saveState(); location.hash = '#/iso/' + x.id + '/confirmation'; break;
     }
     // QA

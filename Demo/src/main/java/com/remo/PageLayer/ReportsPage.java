@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import javax.xml.bind.ValidationException;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NotFoundException;
 import org.openqa.selenium.WebDriver;
@@ -42,7 +43,7 @@ public class ReportsPage extends BaseClass {
 	 */
 	public ReportsPage(WebDriver driver) {
 		this.driver = driver;
-		home = new HomePage(driver);
+		dashboard = new Dashboard(driver);
 		util = new Utility();
 
 		PageFactory.initElements(driver, this);
@@ -114,6 +115,9 @@ public class ReportsPage extends BaseClass {
 
 	@FindBy(css = "[data-testid='report-table-total-amount']")
 	private WebElement batchTransTotalAmount;
+
+	@FindBy(css = "[data-testid='filter-date']")
+	private WebElement dateFilter;
 
 	/**
 	 * WebElements For Reports Page
@@ -787,6 +791,7 @@ public class ReportsPage extends BaseClass {
 	}
 
 	public boolean VerifyOverviewBatchTotalWithSummaryTotal() {
+
 		test = extent.createTest("Verify Business Overview details with Total Summury Report");
 
 		dashboard.selectOverviewYear(util.getCurrentYear());
@@ -809,18 +814,18 @@ public class ReportsPage extends BaseClass {
 		List<String> monthlyEvidence = new ArrayList<>();
 
 		// Step 4: Navigate to Totals Summary Report
-		reportsP.navigateToTotalsSummary();
+		navigateToTotalsSummary();
 		int j = Integer.parseInt(util.getCurrentMonthNum());
 
 		for (int i = 1; i <= j; i++) {
 			try {
 				// Filter by month
-				reportsP.filterByMonth(util.getMonthShortName(i), util.getCurrentYear());
-				String reportPeriod = reportsP.getReportPeriod();
+				filterByMonth(util.getMonthShortName(i), util.getCurrentYear());
+				String reportPeriod = getReportPeriod();
 
 				// Get monthly total
-				String monthlyTotalDisplay = reportsP.getTotalSubmittedAmount();
-				long monthlyCents = reportsP.getTotalSubmittedInCents();
+				String monthlyTotalDisplay = getTotalSubmittedAmount();
+				long monthlyCents = getTotalSubmittedInCents();
 
 				monthlySumCents += monthlyCents;
 
@@ -852,6 +857,19 @@ public class ReportsPage extends BaseClass {
 			return true;
 		}
 
+	}
+
+	public boolean verifyDailyDiscountMatchWithBatchTotal() {
+		test = extent.createTest("Verify discount calculator amount matches with the batch total");
+		navigateToDailyDiscount();
+		filterByMonth();
+		return true;
+	}
+
+	public boolean verifyACHDepositReportTransactionData() {
+		test = extent.createTest("Verify Business Overview details with Total Summury Report");
+		navigateToAchDeposit();
+		return true;
 	}
 
 	// ===========================================================
@@ -960,6 +978,8 @@ public class ReportsPage extends BaseClass {
 	 */
 	public void navigateToAchDeposit() {
 		try {
+			clickOnReports();
+			util.waitForVisibilityOfAllElements(driver, allReports);
 			util.waitForVisibilityOfElement(driver, achDepositLink);
 			achDepositLink.click();
 
@@ -1494,6 +1514,57 @@ public class ReportsPage extends BaseClass {
 		}
 	}
 
+	public void filterByDay(String month) {
+		try {
+			// Click the mode dropdown
+			// filterByDropdown.click();
+			util.selectDropdownByVisibleText(filterByDropdown, "By Day");
+
+			// Select the month by value (1-12)
+			// monthDropdown.click();
+
+			// try sendkeys:
+			dateFilter.sendKeys("2026 - 11 - 15");
+
+			System.out.println(dateFilter.getDomAttribute("value"));
+
+			WebElement dateField = driver.findElement(By.name("date"));
+
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+
+			js.executeScript(
+					"arguments[0].value = '2026-01-15';",
+					dateField);
+
+			System.out.println(dateFilter.getDomAttribute("value"));
+
+			filter.click();
+
+			// util.selectDropdownByValue(monthDropdown, month);
+
+			// Select the year
+			// yearDropdown.click();
+
+			// Apply the filter
+
+			filter.click();
+
+			// Wait for table to refresh
+			util.waitForVisibilityOfElement(driver, totalsRow);
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+			}
+
+			// LOG.fine("Filtered Totals Summary by month: " + month + ", year: " + year);
+
+		} catch (Exception e) {
+			test.log(Status.FAIL, "Failed to filter Totals Summary by month/year");
+			// throw new Exception("Failed to filter mont '"+month+ "' and year '" + year +
+			// "': " + e.getMessage(),e);
+		}
+	}
+
 	public boolean filterByMonth() {
 		util.waitForVisibilityOfElement(driver, filterByDropdown);
 		util.selectDropdownByValue(filterByDropdown, "month");
@@ -1502,7 +1573,8 @@ public class ReportsPage extends BaseClass {
 		util.waitForVisibilityOfElement(driver, monthDropdown);
 		util.waitForVisibilityOfElement(driver, yearDropdown);
 
-		boolean filterChang = monthDropdown.isDisplayed() && yearDropdown.isDisplayed();
+		boolean filterChang = monthDropdown.isDisplayed() &&
+				yearDropdown.isDisplayed();
 
 		if (filterChang) {
 
@@ -1514,7 +1586,8 @@ public class ReportsPage extends BaseClass {
 					util.selectDropdownByValue(yearDropdown, util.getCurrentYear());
 
 					clickOnFilterButton();
-					boolean con1 = util.getSelectedOption(driver, filterByDropdown).getText().contains("Month");
+					boolean con1 = util.getSelectedOption(driver,
+							filterByDropdown).getText().contains("Month");
 					boolean con2 = util.getMonthList().get(i)
 							.contains(util.getSelectedOption(driver, monthDropdown).getText());
 					boolean con3 = util.getSelectedOption(driver, yearDropdown).getText()
@@ -1534,7 +1607,8 @@ public class ReportsPage extends BaseClass {
 
 					clickOnFilterButton();
 
-					boolean con1 = util.getSelectedOption(driver, filterByDropdown).getText().contains("Month");
+					boolean con1 = util.getSelectedOption(driver,
+							filterByDropdown).getText().contains("Month");
 					boolean con2 = util.getMonthList().get(i)
 							.contains(util.getSelectedOption(driver, monthDropdown).getText());
 					boolean con3 = util.getSelectedOption(driver, yearDropdown).getText()
