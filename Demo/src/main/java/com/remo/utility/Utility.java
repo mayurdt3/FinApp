@@ -519,9 +519,14 @@ public class Utility {
 		wait.until(ExpectedConditions.invisibilityOf(e));
 	}
 
-	public void waitForInvisibilityOfElementByLocator(WebDriver driver, String locator) {
+	public void waitForInvisibilityOfElementByxpathLocator(WebDriver driver, String locator) {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath(locator)));
+	}
+
+	public void waitForInvisibilityOfElementByCSSLocator(WebDriver driver, String locator) {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		wait.until(ExpectedConditions.invisibilityOfElementLocated(By.cssSelector(locator)));
 	}
 
 	public int getRandomenumber(int upperlimit) {
@@ -796,6 +801,19 @@ public class Utility {
 		months = Arrays.asList("", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
 				"Sep", "Oct", "Nov", "Dec");
 		return months.get(monthNum);
+	}
+
+	public List<String> getMonthListTillDate() {
+		List<String> monthList = new ArrayList<String>();
+		int i = 1;
+		int monthNum = getIntCurrentMonthNum();
+
+		while (i <= monthNum) {
+			// System.out.println(getMonthShortName(i));
+			monthList.add(getMonthShortName(i));
+			i++;
+		}
+		return monthList;
 	}
 
 	public String getMonthName(int monthNum) {

@@ -92,6 +92,8 @@ public class BaseTest extends BaseClass {
 		user = new Users(driver);
 		location = new Locations(driver);
 		dashboard = new Dashboard(driver);
+
+		
 	}
 
 	/**

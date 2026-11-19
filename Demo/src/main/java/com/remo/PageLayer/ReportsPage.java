@@ -1,6 +1,10 @@
 package com.remo.PageLayer;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
@@ -17,6 +21,8 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
+import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
 import com.remo.base.BaseClass;
@@ -84,6 +90,30 @@ public class ReportsPage extends BaseClass {
 
 	@FindBy(css = "[data-testid='report-table-total-total']")
 	private WebElement totalsSummaryReportSalesAmount;
+
+	@FindBy(css = "[data-testid='view-report-search-transactions']")
+	private WebElement searchTransactionsLink;
+
+	@FindBy(css = "[data-testid='view-report-settled-batches']")
+	private WebElement settledBatchTransactionsLink;
+
+	@FindBy(css = "[data-testid='view-report-ach-deposit']")
+	private WebElement achDepositLink;
+
+	@FindBy(css = "[data-testid='view-report-discount-calculator']")
+	private WebElement discountCalculatorLink;
+
+	@FindBy(css = "[data-testid='report-table-total-amount']")
+	private WebElement searchTransactionTotalAmount;
+
+	@FindBy(css = "[data-testid='report-table-page-info']")
+	private WebElement searchTransactionpaginationInfo;
+
+	@FindBy(css = "[data-testid='report-table-total-count']")
+	private WebElement batchTransCount;
+
+	@FindBy(css = "[data-testid='report-table-total-amount']")
+	private WebElement batchTransTotalAmount;
 
 	/**
 	 * WebElements For Reports Page
@@ -504,6 +534,45 @@ public class ReportsPage extends BaseClass {
 		}
 	}
 
+	public String getSearchTransactionAmount() {
+		try {
+			return searchTransactionTotalAmount.getText();
+		}
+
+		catch (Exception e) {
+			test.log(Status.FAIL, "Faliled to fetch " + "Search transaction Amount");
+			return null;
+		}
+	}
+
+	public String getSearchTransactionCount() {
+		try {
+			String info = searchTransactionpaginationInfo.getText();
+
+			String[] parts = info.split("of");
+
+			String totalItems = parts[1].trim().split(" ")[0];
+
+			return totalItems;
+		}
+
+		catch (Exception e) {
+			test.log(Status.FAIL, "Faliled to fetch " + "Search transaction Count");
+			return null;
+		}
+	}
+
+	public String getSettledBactTransactionCount() {
+		try {
+			return batchTransCount.getText();
+		}
+
+		catch (Exception e) {
+			test.log(Status.FAIL, "Faliled to fetch " + "Batch teansaction Count");
+			return null;
+		}
+	}
+
 	public boolean verifySummaryCalculations() {
 		// Sales amount - refund =Total Sub,itted Amount
 
@@ -515,6 +584,7 @@ public class ReportsPage extends BaseClass {
 
 		Long totalSumbittedAmount = parseMoneyToCents(getTotalSubmittedAmount());
 		System.out.println("Total Sumbitted Amount displayed: " + totalSumbittedAmount);
+
 		Long expectedtotalSumbittedAmount = salesAmount - refundAmount;
 
 		System.out.println("Total Sumbitted Amount Expected :" + expectedtotalSumbittedAmount);
@@ -526,8 +596,180 @@ public class ReportsPage extends BaseClass {
 		} else {
 			test.log(Status.FAIL,
 					"Net Sales Caludcation issue,  Toatl Submitted amout and Sales amount is smae when Refund is present");
-			test.log(Status.FAIL, "Expected Toatl submitted Amount: " + expectedtotalSumbittedAmount + " found: "
-					+ totalSumbittedAmount);
+			test.log(Status.FAIL,
+					"Expected Toatl submitted Amount: " + formatCents(expectedtotalSumbittedAmount) + " found: "
+							+ formatCents(totalSumbittedAmount));
+			return false;
+		}
+
+	}
+
+	List<String> monthList;
+
+	public boolean verifyTotalsubmittedVsTransactionAmount() {
+
+		// System.out.println("fetching Monthlist");
+		monthList = util.getMonthListTillDate();
+		System.out.println(monthList);
+
+		navigateToTotalsSummary();
+		// Long monthlySumCents = 0L;
+
+		List<Long> TotalSubmittedAmount = new ArrayList<Long>();
+		List<Long> TransactionAmount = new ArrayList<Long>();
+
+		int j = util.getIntCurrentMonthNum();
+		String year = util.getCurrentYear();
+		// List<String> monthList =
+		// util.getMonthListTilldate(util.getIntCurrentMonthNum());
+		for (String month : monthList) {
+			try {
+
+				// Filter by month
+				filterByMonth(month, year);
+				Long totalSumbittedAmount = parseMoneyToCents(getTotalSubmittedAmount());
+				System.out.println("Total Sumbitted Amount displayed: " + totalSumbittedAmount);
+
+				TotalSubmittedAmount.add(totalSumbittedAmount);
+
+			} catch (Exception e) {
+				test.log(Status.FAIL, "Failed to fetch Total Sumbitted Amount for month: " + month);
+				// Continue with next month on error
+
+			}
+
+		}
+
+		// Navigate to Serach transaction report
+		navigateToSearchTransactions();
+
+		for (String month : monthList) {
+
+			try {
+
+				// Filter by month
+				filterByMonth(month, year);
+				Long searchtransactionAmount = parseMoneyToCents(getSearchTransactionAmount());
+				System.out.println("Total Amount displayed: " + searchtransactionAmount);
+
+				// Get monthly total
+				TransactionAmount.add(searchtransactionAmount);
+
+			} catch (Exception e) {
+				test.log(Status.FAIL, "Failed to fetch Total Amount for month: " + month);
+				// Continue with next month on error
+			}
+		}
+
+		for (int i = 0; i < TotalSubmittedAmount.size(); i++) {
+			if (TotalSubmittedAmount.get(i).equals(TransactionAmount.get(i))) {
+				test.log(Status.PASS,
+						"Total submitted amount on month  " + util.getMonthShortName(i) + ": "
+								+ formatCents(TotalSubmittedAmount.get(i))
+								+ " match with SSearch transaction Amount : " + formatCents(TransactionAmount.get(i)));
+				return true;
+			} else {
+				test.log(Status.FAIL,
+						"Total submitted amount on month  " + util.getMonthShortName(i) + ": "
+								+ formatCents(TotalSubmittedAmount.get(i))
+								+ " does not match with Search transaction Amount : "
+								+ formatCents(TransactionAmount.get(i)));
+				return false;
+			}
+
+		}
+
+		if (TotalSubmittedAmount.equals(TransactionAmount)) {
+			test.log(Status.PASS,
+					"Total submitted amount on from the Totals Summary report and Search transaction Amount is same");
+			return true;
+		} else {
+			test.log(Status.FAIL,
+					"Total submitted amount on from the Totals Summary report and Search transaction Amount is not same");
+			return false;
+		}
+
+	}
+
+	public boolean verifySearchTeasactionCountVsSettledBatchCount() {
+
+		monthList = util.getMonthListTillDate();
+
+		List<Integer> searchTransactionACount = new ArrayList<Integer>();
+		List<Integer> batchTransactionCount = new ArrayList<Integer>();
+		int j = util.getIntCurrentMonthNum();
+		String year = util.getCurrentYear();
+
+		// Navigate to Serach transaction report
+		navigateToSearchTransactions();
+
+		for (String month : monthList) {
+			try {
+
+				// Filter by month
+				filterByMonth(month, year);
+				int transactionCount = Integer.parseInt(getSearchTransactionCount());
+				System.out
+						.println("Total Search Transaction Count displayed for :" + month + "is :" + transactionCount);
+
+				// Get monthly total
+				searchTransactionACount.add(transactionCount);
+
+			} catch (Exception e) {
+				test.log(Status.FAIL,
+						"Failed to fetch Search Transaction Count  for month: " + month);
+				// Continue with next month on error
+			}
+		}
+
+		// navigate to Settled Batch transaction
+		navigateSettledBatch();
+
+		for (String month : monthList) {
+
+			try {
+
+				// Filter by month
+				filterByMonth(month, year);
+				int transactionCount = Integer.parseInt(getSettledBactTransactionCount());
+				System.out.println(
+						"Total Settled Bacth transaction count displayed:" + month + " is :" + transactionCount);
+
+				// Get monthly total
+				batchTransactionCount.add(transactionCount);
+
+			} catch (Exception e) {
+				test.log(Status.FAIL,
+						"Failed to fetch Settled Bacth transaction count  for month: " + month);
+				// Continue with next month on error
+			}
+		}
+
+		for (int i = 0; i < searchTransactionACount.size(); i++) {
+			if (searchTransactionACount.get(i).equals(batchTransactionCount.get(i))) {
+				test.log(Status.PASS,
+						"Bacth transaction count on month  " + util.getMonthShortName(i) + ": "
+								+ searchTransactionACount.get(i)
+								+ " match with Settled Bacth transaction count : " + batchTransactionCount.get(i));
+
+			} else {
+				test.log(Status.FAIL,
+						"Bacth transaction count on month  " + util.getMonthShortName(i) + ": "
+								+ searchTransactionACount.get(i)
+								+ " does not match with Settled Bacth transaction count : "
+								+ batchTransactionCount.get(i));
+
+			}
+
+		}
+		if (searchTransactionACount.equals(batchTransactionCount)) {
+			test.log(Status.PASS,
+					"Transaction Count  on from the Settled batch transaction report and Search transaction Count is same");
+
+			return true;
+		} else {
+			test.log(Status.FAIL,
+					"Transaction Count  on from the Settled batch transaction report and Search transaction Count is not same");
 			return false;
 		}
 
@@ -544,9 +786,78 @@ public class ReportsPage extends BaseClass {
 		return String.format("$%.2f", cents / 100.0);
 	}
 
+	public boolean VerifyOverviewBatchTotalWithSummaryTotal() {
+		test = extent.createTest("Verify Business Overview details with Total Summury Report");
+
+		dashboard.selectOverviewYear(util.getCurrentYear());
+		System.out.println(dashboard.getSlectedOverview());
+		if (dashboard.getSlectedOverview().equals(util.getCurrentYear())) {
+			// System.out.println("=========2026");
+			test.log(Status.PASS, "Selected Business Overview succesfuly");
+		} else {
+			// System.out.println("failed to show");
+			test.log(Status.FAIL, "failed to Select The Business Overview option");
+			return false;
+		}
+
+		// Step 3: Get Batch Total from Business Overview (this is the correct net
+		// amount)
+		String batchTotalDisplay = dashboard.getBatchTotal();
+		long batchTotalCents = parseMoneyToCents(batchTotalDisplay);
+
+		long monthlySumCents = 0L;
+		List<String> monthlyEvidence = new ArrayList<>();
+
+		// Step 4: Navigate to Totals Summary Report
+		reportsP.navigateToTotalsSummary();
+		int j = Integer.parseInt(util.getCurrentMonthNum());
+
+		for (int i = 1; i <= j; i++) {
+			try {
+				// Filter by month
+				reportsP.filterByMonth(util.getMonthShortName(i), util.getCurrentYear());
+				String reportPeriod = reportsP.getReportPeriod();
+
+				// Get monthly total
+				String monthlyTotalDisplay = reportsP.getTotalSubmittedAmount();
+				long monthlyCents = reportsP.getTotalSubmittedInCents();
+
+				monthlySumCents += monthlyCents;
+
+			} catch (Exception e) {
+				test.log(Status.FAIL, "Failed to process month " + util.getMonthShortName(i));
+				// Continue with next month on error
+			}
+		}
+
+		// Step 6: Calculate difference
+		long differenceCents = Math.abs(monthlySumCents - batchTotalCents);
+
+		// Step 7: Verification logic
+		//
+		// The difference represents refunds that are included in gross but deducted
+		// from net
+		if (differenceCents > 0) {
+
+			test.log(Status.FAIL, "Totals Summary gross > Business Overview net");
+			test.log(Status.FAIL,
+					"Difference " + formatCents(differenceCents) + ": Total refunds included but not deducted");
+			test.log(Status.FAIL,
+					"Totals Summary monthly sum " + formatCents(monthlySumCents)
+							+ " should equal Business Overview year total " + formatCents(batchTotalCents)
+							+ ", but differs by " + formatCents(differenceCents));
+			return false;
+		} else {
+			test.log(Status.PASS, "Totals Summary gross = Business Overview net");
+			return true;
+		}
+
+	}
+
 	// ===========================================================
 	// ===========================================================
-	// ==========================================================
+	// ===========================================================
+	// ===========================================================
 
 	public boolean verifyFilterByMonthBatch() {
 		util.waitForVisibilityOfElement(driver, filterByDropdown);
@@ -590,6 +901,116 @@ public class ReportsPage extends BaseClass {
 			System.out.println("failed to navigate to total summary report");
 			test.log(Status.FAIL, "failed to navigate to total summary report");
 			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Navigate to Search Transactions Report page.
+	 * 
+	 * @return new SearchTransactionsPage instance
+	 * @throws ElementException if navigation fails
+	 */
+	public void navigateToSearchTransactions() {
+
+		try {
+			clickOnReports();
+			util.waitForVisibilityOfAllElements(driver, allReports);
+			util.waitForVisibilityOfElement(driver, searchTransactionsLink);
+			searchTransactionsLink.click();
+			if (reportName.getText().equals("Search Transactions Report")) {
+
+			} else {
+				test.log(Status.FAIL, "Failed to navigate to Search Transactions report");
+			}
+		} catch (Exception e) {
+			System.out.println("failed to navigate to total Search Transactions report");
+			test.log(Status.FAIL, "failed to navigate to total Search Transactions report");
+		}
+	}
+
+	/**
+	 * Navigate to Settled Batch Transactions Report page.
+	 * 
+	 * @return new SearchTransactionsPage instance
+	 * @throws ElementException if navigation fails
+	 */
+	public void navigateSettledBatch() {
+
+		try {
+			clickOnReports();
+			util.waitForVisibilityOfAllElements(driver, allReports);
+			util.waitForVisibilityOfElement(driver, settledBatchTransactionsLink);
+			settledBatchTransactionsLink.click();
+			if (reportName.getText().equals("Settled Batches / Transactions Report")) {
+
+			} else {
+				test.log(Status.FAIL, "Failed to navigate to Settled Batches Transactions report");
+			}
+		} catch (Exception e) {
+			System.out.println("failed to navigate to total Settled Batches Transactions report");
+			test.log(Status.FAIL, "failed to navigate to total Settled Batches Transactions report");
+		}
+	}
+
+	/**
+	 * Navigate to ACH Deposit Report page.
+	 * 
+	 * @return new AchDepositPage instance
+	 * @throws ElementException if navigation fails
+	 */
+	public void navigateToAchDeposit() {
+		try {
+			util.waitForVisibilityOfElement(driver, achDepositLink);
+			achDepositLink.click();
+
+		} catch (Exception e) {
+			System.out.println("Failed to navigate to ACH Deposit");
+			test.log(Status.FAIL, "Failed to navigate to ACH Deposit");
+
+		}
+	}
+
+	/**
+	 * Navigate to Daily Discount Calculator Report page.
+	 * 
+	 * @return new DailyDiscountPage instance
+	 * @throws ElementException if navigation fails
+	 */
+	public void navigateToDailyDiscount() {
+		try {
+			util.waitForVisibilityOfElement(driver, discountCalculatorLink);
+			discountCalculatorLink.click();
+
+		} catch (Exception e) {
+			System.out.println("Failed to navigate to Daily Discount Calculator");
+			test.log(Status.FAIL, "Failed to navigate to Daily Discount Calculator");
+
+		}
+	}
+
+	/**
+	 * Get the total row count from Search Transactions report.
+	 * Uses the pagination info element to determine total count.
+	 */
+	private long getSearchTransactionsRowCount() {
+		try {
+			// Try to find the page-info element which shows "X of Y items"
+			// The format is typically "1 - 10 of 247 items"
+			By pageInfoLocator = By.cssSelector("[data-testid='report-table-page-info']");
+			WebElement pageInfo = driver.findElement(pageInfoLocator);
+			String pageInfoText = pageInfo.getText().trim();
+
+			// Parse "X - Y of Z items" format
+			String[] parts = pageInfoText.split("\\s+");
+			if (parts.length >= 4) {
+				// The last number before "items" is the total count
+				String lastPart = parts[parts.length - 2];
+				return Long.parseLong(lastPart.replace(",", ""));
+			}
+			return 0;
+		} catch (Exception e) {
+			// LOG.warn("Could not parse row count from pagination, returning 0");
+			return 0;
 		}
 	}
 
@@ -936,14 +1357,54 @@ public class ReportsPage extends BaseClass {
 
 	/**
 	 * Get the Total Submitted Amount from the report table footer.
-	 * This should equal the Business Overview Batch Total when bug is OFF.
-	 * Bug-01 causes this to show gross sales instead of net (sales - refunds).
 	 *
 	 * @return the total submitted amount as a string
 	 * @throws NotFoundException   if the totals row is not found
 	 * @throws ValidationException if the amount cannot be parsed
 	 */
 	public String getTotalSubmittedAmount() {
+		try {
+			util.waitForVisibilityOfElement(driver, totalsRow);
+			String totalText = totalsRow.getText().trim();
+			// Parse the dollar amount from the text
+			String amount = totalText.contains("$") ? totalText.substring(totalText.lastIndexOf("$")) : totalText;
+			// LOG.fine("Total Submitted Amount: " + amount);
+			return amount;
+		} catch (Exception e) {
+			test.log(Status.FAIL, "Failed to get total submitted amount: " + e.getMessage());
+			return null;
+		}
+	}
+
+	/**
+	 * Get the Batch Amount from the report table footer.
+	 *
+	 * @return the total submitted amount as a string
+	 * @throws NotFoundException   if the totals row is not found
+	 * @throws ValidationException if the amount cannot be parsed
+	 */
+	public String getSearchtransactionTotalAmount() {
+		try {
+			util.waitForVisibilityOfElement(driver, totalsRow);
+			String totalText = totalsRow.getText().trim();
+			// Parse the dollar amount from the text
+			String amount = totalText.contains("$") ? totalText.substring(totalText.lastIndexOf("$")) : totalText;
+			// LOG.fine("Total Submitted Amount: " + amount);
+			return amount;
+		} catch (Exception e) {
+			test.log(Status.FAIL, "Failed to get total submitted amount: " + e.getMessage());
+			return null;
+		}
+	}
+
+	/**
+	 * Get the teansaction count from the report table footer.
+	 *
+	 * @return the total submitted amount as a string
+	 * @throws NotFoundException   if the totals row is not found
+	 * @throws ValidationException if the amount cannot be parsed
+	 */
+	public String getTransactionCountfromFooter() {
 		try {
 			util.waitForVisibilityOfElement(driver, totalsRow);
 			String totalText = totalsRow.getText().trim();
@@ -1007,6 +1468,7 @@ public class ReportsPage extends BaseClass {
 			// Select the month by value (1-12)
 			// monthDropdown.click();
 			util.selectDropdownByVisibleText(monthDropdown, month);
+			// util.selectDropdownByValue(monthDropdown, month);
 
 			// Select the year
 			// yearDropdown.click();
@@ -1018,6 +1480,11 @@ public class ReportsPage extends BaseClass {
 
 			// Wait for table to refresh
 			util.waitForVisibilityOfElement(driver, totalsRow);
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+			}
+
 			// LOG.fine("Filtered Totals Summary by month: " + month + ", year: " + year);
 
 		} catch (Exception e) {

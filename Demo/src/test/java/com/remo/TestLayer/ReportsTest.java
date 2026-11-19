@@ -10,6 +10,8 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import com.remo.Test.BaseTest;
+
+import net.bytebuddy.build.Plugin.Engine.Summary;
 import reporter.ExtentUtility;
 
 public class ReportsTest extends BaseTest {
@@ -42,16 +44,48 @@ public class ReportsTest extends BaseTest {
 
 	}
 
+	// data integrity
 	@Test(priority = 3)
 	public void verifyTotalsSummaryReportFunctionality() {
-		reportsP.navigateToTotalsSummary();
 		test = extent.createTest("Verify functionality of totals summary report");
 		reportsP.navigateToTotalsSummary();
 		SoftAssert a = new SoftAssert();
-		// Sales amount - refund =Total Sub,itted Amount
+		// Sales amount - refund =Total Submitted Amount
 
 		a.assertTrue(reportsP.verifySummaryCalculations());
 
+		a.assertAll();
+
+	}
+
+	@Test(priority = 4)
+	public void VerifyTotalsSummaryTotalSubmittedAmountWithSearchTransactionAmounts() {
+		reportsP.navigateToTotalsSummary();
+		test = extent.createTest("Totals Summary total submitted = Σ settled batch amounts (per month)");
+		SoftAssert a = new SoftAssert();
+		a.assertTrue(reportsP.verifyTotalsubmittedVsTransactionAmount());
+		a.assertAll();
+
+	}
+
+	@Test(priority = 5)
+	public void VerifyBatchTransactionCountWithSettledBatchCount() {
+		reportsP.navigateToSearchTransactions();
+		test = extent.createTest("Search Transaction Count = settled batch Count (per month)");
+		SoftAssert a = new SoftAssert();
+		a.assertTrue(reportsP.verifySearchTeasactionCountVsSettledBatchCount());
+		a.assertAll();
+
+	}
+
+	@Test(priority = 6)
+	public void VerifyOverviewBatchTotalWithSummaryTotalSubmittedAmount() {
+
+		test = extent.createTest(" Buisness Overview Batch total= Σ Totals Summary total submitted (per month)");
+
+		reportsP.navigateToSearchTransactions();
+		SoftAssert a = new SoftAssert();
+		a.assertTrue(reportsP.VerifyOverviewBatchTotalWithSummaryTotal());
 		a.assertAll();
 
 	}

@@ -133,33 +133,19 @@ public class Scenario1 extends BaseTest {
 
     }
 
-
-
-      @Test(priority = 1)
+    @Test(priority = 1)
     @Parameters("environment")
     public void VerifyTotalSummuryreport(@Optional("QAURL") String env) {
         test = extent.createTest("Verify Total Summary report");
 
-
-
-        
-
-
     }
+
     @Test(priority = 2)
     @Parameters("environment")
     public void VerifyTotalSummuryWithStSettledBatchAmounts(@Optional("QAURL") String env) {
         test = extent.createTest("Scenario 1");
 
-       
-
-
-
-
-
     }
-
-
 
     /** Parse money string like "$1,234.56" to cents as long */
     private long parseMoneyToCents(String money) {
