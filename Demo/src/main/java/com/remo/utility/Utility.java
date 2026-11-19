@@ -1014,4 +1014,27 @@ public class Utility {
 	// }
 	// }
 
+	// public void navigateToUrl(String url) {
+	// driver.navigate().to(url);
+	// }
+
+	// public void navigateBack() {
+	// driver.navigate().back();
+	// }
+
+	// public void navigateForward() {
+	// driver.navigate().forward();
+	// }
+
+	// public void refreshPage() {
+	// driver.navigate().refresh();
+	// }
+
+	// public String getCurrentUrl() {
+	// return driver.getCurrentUrl();
+	// }
+
+	// public String getPageTitle() {
+	// return driver.getTitle();
+	// }
 }

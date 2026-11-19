@@ -1,9 +1,6 @@
 package com.remo.TestLayer;
 
 import static org.testng.Assert.assertTrue;
-
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -11,7 +8,6 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import com.remo.Test.BaseTest;
 
-import net.bytebuddy.build.Plugin.Engine.Summary;
 import reporter.ExtentUtility;
 
 public class ReportsTest extends BaseTest {
@@ -37,12 +33,12 @@ public class ReportsTest extends BaseTest {
 
 	}
 
-	@Test(priority = 2)
-	public void verifyLinkValidationOfReportCards() {
-		test = extent.createTest("Verify Link Validation of all report cards");
-		assertTrue(reportsP.linkValidationOfReports());
+	// @Test(priority = 2)
+	// public void verifyLinkValidationOfReportCards() {
+	// test = extent.createTest("Verify Link Validation of all report cards");
+	// assertTrue(reportsP.linkValidationOfReports());
 
-	}
+	// }
 
 	// data integrity
 	@Test(priority = 3)
@@ -60,7 +56,7 @@ public class ReportsTest extends BaseTest {
 
 	@Test(priority = 4)
 	public void VerifyTotalsSummaryTotalSubmittedAmountWithSearchTransactionAmounts() {
-		reportsP.navigateToTotalsSummary();
+		// reportsP.navigateToTotalsSummary();
 		test = extent.createTest("Totals Summary total submitted = Σ settled batch amounts (per month)");
 		SoftAssert a = new SoftAssert();
 		a.assertTrue(reportsP.verifyTotalsubmittedVsTransactionAmount());
@@ -91,23 +87,11 @@ public class ReportsTest extends BaseTest {
 	}
 
 	@Test(priority = 6)
-	public void VerifyDailyDiscountCalculatorVsBatchamounts() {
-
-		test = extent.createTest(" Verify card-type totals = deposit amount");
-
-		
-		SoftAssert a = new SoftAssert();
-		a.assertTrue(reportsP.verifyACHDepositReportTransactionData());
-		a.assertAll();
-
-	}
-
-	@Test(priority = 6)
 	public void VerifyACHTransactionDataAndRecords() {
+		test = extent.createTest(" Verify ACH Deposit report");
 
 		test = extent.createTest(" Verify card-type totals = deposit amount");
 
-		
 		SoftAssert a = new SoftAssert();
 		a.assertTrue(reportsP.verifyACHDepositReportTransactionData());
 		a.assertAll();

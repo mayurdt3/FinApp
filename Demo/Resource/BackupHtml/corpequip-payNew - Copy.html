@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CorpEquip Pay — Merchant Hub</title>
+<style>
+:root{--bg:#f4f6fa;--ink:#1d2939;--muted:#667085;--line:#e4e7ec;--side:#1b1740;--brand:#2f5bea;--green:#1f8a4c;--red:#d92d20;--ok:#067647;--okbg:#ecfdf3;--bad:#b42318;--badbg:#fef3f2;--warn:#b54708;--warnbg:#fffaeb}
+*{box-sizing:border-box}body{margin:0;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+a{color:var(--brand);text-decoration:none}a:hover{text-decoration:underline}[hidden]{display:none!important}
+.app{display:flex;min-height:100vh}.side{width:92px;background:var(--side);color:#c9c6ef;display:flex;flex-direction:column;align-items:stretch;position:sticky;top:0;height:100vh;flex-shrink:0}
+.logo{font-weight:800;color:#fff;text-align:center;padding:16px 0;font-size:18px;letter-spacing:.5px}.logo span{color:#7aa2ff;font-size:12px;display:block}
+.side a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;color:#c9c6ef;font-size:11px;text-align:center;border-left:3px solid transparent}.side a:hover{background:rgba(255,255,255,.06);text-decoration:none}
+.side a.on{color:#fff;background:rgba(255,255,255,.1);border-left-color:#f5b400}.side svg{width:22px;height:22px;fill:currentColor}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}.top{background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:10px 24px;position:sticky;top:0;z-index:20}
+.mname{font-weight:700;font-size:15px}.maddr{font-size:11px;color:var(--muted);line-height:1.35}.sp{flex:1}
+.saq{font-size:11px;font-weight:800;padding:3px 9px;border-radius:12px;color:#fff}.saq-due{background:var(--red)}.saq-ok{background:var(--green)}
+.bell{position:relative;color:#475467}.bell svg{width:22px;height:22px;fill:currentColor}.cnt{position:absolute;top:-6px;right:-8px;background:var(--red);color:#fff;font-size:10px;border-radius:9px;padding:0 5px}
+.user{position:relative}.avatar{width:34px;height:34px;border-radius:50%;border:0;background:var(--brand);color:#fff;font-weight:700;cursor:pointer}
+.menu{position:absolute;right:0;top:42px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:220px;padding:6px;display:flex;flex-direction:column}
+.menu a,.menu button{padding:8px 10px;border-radius:6px;color:var(--ink);text-align:left;background:none;border:0;font:inherit;cursor:pointer}.menu a:hover,.menu button:hover{background:#f2f4f7;text-decoration:none}.mhead{padding:8px 10px;border-bottom:1px solid var(--line);margin-bottom:4px;display:flex;flex-direction:column}.mhead span{font-size:12px;color:var(--muted)}
+#page{padding:22px 26px;max-width:1360px;width:100%}.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px}.page-head h1{margin:0;font-size:20px}.crumb{font-size:12px;color:var(--muted)}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px}.ctitle{font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid #d0d5dd;background:#fff;color:var(--ink);padding:7px 14px;border-radius:7px;font:inherit;font-weight:600;cursor:pointer;white-space:nowrap}.btn:hover{background:#f9fafb;text-decoration:none}.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--brand);border-color:var(--brand);color:#fff}.btn-primary:hover{background:#2449c4}.btn-green{background:var(--green);border-color:var(--green);color:#fff}.btn-green:hover{background:#18723e}.btn-red{background:var(--red);border-color:var(--red);color:#fff}.btn-red:hover{background:#b42318}
+.btn-sm{padding:4px 10px;font-size:12px}.btn-block{width:100%}.lnk{background:none;border:0;color:var(--brand);cursor:pointer;font:inherit;font-weight:600;padding:0;text-align:left}
+input,select{font:inherit;padding:7px 10px;border:1px solid #d0d5dd;border-radius:7px;background:#fff;color:var(--ink);min-width:0;width:100%}input[readonly]{background:#f2f4f7}
+label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:#344054}label.chk{flex-direction:row;align-items:center;gap:8px;font-weight:500}label.chk input{width:auto}
+.ferr{color:var(--bad);font-size:12px;min-height:0}.ferr:empty{display:none}
+.banner{padding:10px 14px;border-radius:8px;margin-bottom:12px;border:1px solid}.b-ok{background:var(--okbg);color:var(--ok);border-color:#abefc6}.b-error{background:var(--badbg);color:var(--bad);border-color:#fecdca}.b-info{background:#eff8ff;color:#175cd3;border-color:#b2ddff}
+.badge{display:inline-block;padding:1px 9px;border-radius:10px;font-size:12px;font-weight:600;border:1px solid}.badge.b-ok{background:var(--okbg);color:var(--ok);border-color:#abefc6}.badge.b-error{background:var(--badbg);color:var(--bad);border-color:#fecdca}.badge.b-warn{background:var(--warnbg);color:var(--warn);border-color:#fedf89}.badge.b-muted{background:#f2f4f7;color:#475467;border-color:#e4e7ec}
+.muted{color:var(--muted)}.small{font-size:12px}.note{font-size:12px;color:var(--muted);margin:-6px 0 10px}
+/* dashboard */
+.dash{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(280px,1fr);gap:14px}.plats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.plat{border:1px solid var(--line);border-radius:8px;display:flex;flex-direction:column;min-height:132px;overflow:hidden}.pname{font-weight:700;padding:10px 10px 2px}.ptag{font-size:11px;color:var(--muted);padding:0 10px;flex:1}.pbtn{display:block;padding:7px 10px;font-size:12px;font-weight:700;background:#f2f4f7;color:var(--ink)}.pbtn.on{background:var(--side);color:#fff}
+.arrow{border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer;padding:2px 8px}.arrow:disabled{opacity:.4}
+.trends{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.trend{border:1px solid var(--line);border-radius:8px;padding:10px;text-align:center}.tv{font-size:20px;font-weight:700}.tl{font-size:12px;color:var(--muted)}.spark{width:100%;height:40px;margin:4px 0}
+.nodata{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:11px;padding:8px 0}.nodata svg{width:30px;fill:#d0d5dd}
+.bars{width:100%;max-width:720px}.ov{display:flex;flex-direction:column;padding:8px 0;border-bottom:1px solid #f2f4f7}.ovv{font-size:18px;font-weight:700}.ovl{font-size:12px;color:var(--muted)}.sel{margin:8px 0}
+.promo{background:linear-gradient(135deg,#2f5bea,#7a5af8);color:#fff;display:flex;flex-direction:column;gap:4px}.promo a{color:#fff;text-decoration:underline}
+/* reports */
+.cards4{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}.rcard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:4px}.ric svg{width:26px;fill:#98a2b3}.rt{font-weight:700}.rd{font-size:12px;color:var(--muted);flex:1}
+.filters{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}.filters label{width:170px}.f-btns{display:flex;gap:8px}
+.rbtns{display:flex;gap:8px}.period{font-weight:600;margin:6px 0 8px;color:#344054}
+.tbl{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:12px}.card .tbl{border:0;border-radius:0;margin:0}.tbl-scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%}.tbl th{background:#e7eefc;color:#344054;font-size:12px;text-align:left;padding:8px 10px;white-space:nowrap;user-select:none}.tbl th.sortable{cursor:pointer}
+.tbl td{padding:7px 10px;border-bottom:1px solid #f2f4f7;white-space:nowrap;font-size:13px}.tbl tfoot td{font-weight:700;background:#ecfdf3}.num{text-align:right!important;font-variant-numeric:tabular-nums}.empty{text-align:center;color:var(--muted);padding:22px!important}
+tr.daily-total td{background:#ecfdf3;font-weight:700}.pager{display:flex;align-items:center;gap:4px;padding:8px 10px;font-size:12px;color:var(--muted)}.pg{border:1px solid var(--line);background:#fff;border-radius:5px;min-width:28px;padding:3px 6px;cursor:pointer}.pg.on{background:var(--brand);color:#fff;border-color:var(--brand)}.pg:disabled{opacity:.4}
+.kvrow{display:flex;gap:28px;flex-wrap:wrap;font-size:13px;margin-bottom:12px;color:#344054}
+.stmt{background:#fff;border:1px solid var(--line);border-radius:10px;padding:22px;max-width:820px}.stmt-head{display:flex;justify-content:space-between}.stmt-brand{font-weight:800;font-size:22px;color:var(--brand)}.notbill{color:var(--red);font-weight:800;font-style:italic}
+.stmt-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:16px 0}.kvt td,.sumt td{padding:5px 8px;border-bottom:1px solid var(--line)}.sumt{max-width:520px}.sumt tr.tot td{font-weight:800;border-top:2px solid var(--ink)}
+.pdfwrap{background:#e5e7eb;min-height:100vh;padding:20px}.pdfbar{display:flex;max-width:900px;margin:0 auto 12px}.pdfpage{background:#fff;max-width:900px;margin:0 auto;padding:36px;box-shadow:0 4px 18px rgba(0,0,0,.15);font-family:Arial,sans-serif}
+.pdfhead{display:flex;justify-content:space-between;border-bottom:2px solid #111;padding-bottom:10px;font-size:12px}.pdfhead .r{text-align:right}.pdftitle{text-align:center;font-weight:500;margin:22px 0 14px}
+.pdft th{background:#e5e7eb;font-size:12px;padding:8px;text-align:left}.pdft td{padding:7px 8px;border-bottom:1px solid #d0d5dd;font-size:12px}.pdft tfoot td{background:#e5e7eb;font-weight:700}.pdffoot{text-align:right;font-size:11px;margin-top:16px}
+@media print{.noprint{display:none}.pdfwrap{background:#fff;padding:0}.pdfpage{box-shadow:none;padding:0}}
+/* profile etc */
+.prof{display:grid;grid-template-columns:280px 1fr;gap:14px}.pcard{text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}.bigav{width:84px;height:84px;border-radius:50%;background:var(--brand);color:#fff;font-size:30px;font-weight:700;display:flex;align-items:center;justify-content:center}.pn{font-weight:700;font-size:16px}.role{background:#475467;color:#fff;border-radius:6px;padding:1px 10px;font-size:12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}.chip{background:#eef2ff;color:#3538cd;border-radius:10px;padding:1px 8px;font-size:11px}
+.form2{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;align-content:start}.form3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px 14px}.span2{grid-column:span 2}.span3{grid-column:span 3}.hub{display:flex;gap:8px;flex-wrap:wrap}
+.narrow{max-width:420px;display:flex;flex-direction:column;gap:10px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mb{margin-bottom:10px}.mt{margin-top:12px}
+.msgs{padding:0}.msg{display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);color:var(--ink)}.msg:hover{background:#f9fafb;text-decoration:none}.msg svg{width:24px;fill:#475467;flex-shrink:0}.msg div{display:flex;flex-direction:column}.msg span{color:var(--muted);font-size:12px}.msg em{font-size:11px;color:var(--muted)}.msg.unread strong::after{content:" •";color:var(--red)}
+.kvt2{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.ticks li{margin:4px 0}
+/* iso */
+.isogrid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(300px,1fr);gap:14px;align-items:start}.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:12px}.tab{border:0;background:none;padding:8px 12px;cursor:pointer;font:inherit;color:var(--muted);border-bottom:2px solid transparent}.tab.on{color:var(--brand);border-color:var(--brand);font-weight:600}
+.thumb svg{width:36px;height:36px}.mini th{font-size:12px;color:var(--muted);text-align:left;padding:6px;border-bottom:1px solid var(--line)}.mini td{padding:6px;border-bottom:1px solid #f2f4f7;font-size:13px}.emptycart{text-align:center;background:#f2f4f7;font-weight:600;padding:14px!important}
+.del{border:0;background:var(--red);color:#fff;border-radius:4px;cursor:pointer;padding:1px 6px}.sumbox{margin-top:10px}.sumbox div{display:flex;justify-content:space-between;padding:3px 0;font-size:13px}.sumbox .tot{font-weight:800;font-size:15px;border-top:1px solid var(--line);padding-top:6px}
+.btnrow{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.btnrow.end{justify-content:flex-end}
+.overlay{position:fixed;inset:0;background:rgba(16,24,40,.45);display:flex;align-items:center;justify-content:center;z-index:40;padding:20px}.modal{background:#fff;border-radius:12px;padding:20px;width:560px;max-width:100%;max-height:92vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.25)}.modal.wide{width:820px}
+.mtitle{font-weight:800;font-size:17px;margin-bottom:12px}.mfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}.choices.four{grid-template-columns:repeat(4,1fr)}.choices.three{grid-template-columns:repeat(3,1fr)}
+.choice{border:1px solid var(--line);background:#fff;border-radius:8px;padding:14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:6px;font:inherit}.choice span{font-size:12px;color:var(--muted)}.choice.on{background:var(--brand);color:#fff;border-color:var(--brand)}.choice.on span{color:#e0e7ff}.choice .big{font-size:20px;font-weight:800;color:inherit}
+.itm{display:grid;grid-template-columns:1fr 160px;gap:16px}.itimg svg{width:150px;height:150px}.paybtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.pay{border:1px solid var(--line);background:#fff;padding:10px;border-radius:6px;cursor:pointer;font:inherit;font-weight:600}.pay.wide{grid-column:span 2}.pay.on{background:var(--brand);color:#fff;border-color:var(--brand)}.pay:disabled{opacity:.5}
+.confirm .cbanner{background:var(--green);color:#fff;text-align:center;padding:26px;border-radius:10px 10px 0 0;font-size:20px;font-weight:700}.check{width:64px;height:64px;border-radius:50%;background:#fff;color:var(--green);font-size:38px;line-height:64px;margin:0 auto 8px}.confirm .card{border-radius:0 0 10px 10px}
+.bugs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}pre{background:#0f172a;color:#e2e8f0;padding:12px;border-radius:8px;font-size:12px;white-space:pre-wrap}
+#toasts{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:60;max-width:380px}.toast{background:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 4px 14px rgba(16,24,40,.18);border-left:4px solid #175cd3}.toast-success{border-color:var(--green)}.toast-error{border-color:var(--red)}
+@media (max-width:1000px){.dash,.isogrid,.prof,.grid2{grid-template-columns:1fr}.plats{grid-template-columns:repeat(2,1fr)}.trends{grid-template-columns:repeat(2,1fr)}.choices.four{grid-template-columns:1fr 1fr}}
+[data-testid=recon-report] td,[data-testid=recon-table] td{white-space:normal}
+.bchips{display:flex;flex-wrap:wrap;gap:4px}.bchip{font-size:11px;font-weight:600;border-radius:10px;padding:1px 8px;border:1px solid}.b-rep{background:#fef3f2;color:#b42318;border-color:#fecdca}.b-wait{background:#fffaeb;color:#b54708;border-color:#fedf89}.b-off{background:#f2f4f7;color:#667085;border-color:#e4e7ec}.screenbugs{margin-top:12px;padding:10px 12px;border:1px dashed #d0d5dd;border-radius:8px;display:flex;flex-direction:column;gap:6px}
+
+</style>
+</head>
+<body>
+<div id="root" data-testid="app"></div>
+<div id="toasts" data-testid="toasts" aria-live="polite"></div>
+<script>
+(function(){
+'use strict';
+/* =====================================================================
+   CorpEquip Pay — Merchant Hub & Partner Hub (demo)
+   Core: constants, bug flags, seeded data, report functions, recon
+   ===================================================================== */
+const APP_KEY = 'corpequip_portal_v3';
+const DEFAULT_SEED = 1001;
+const DEFAULT_TODAY = '2026-11-16';
+const DATA_START = '2026-01-01';
+const DATA_END = '2026-11-15';
+const YEARS = ['2026', '2025'];
+const PAGE_SIZE = 10;
+const BUG_IDS = ['BUG-01', 'BUG-02', 'BUG-03', 'BUG-04', 'BUG-05', 'BUG-06', 'BUG-07', 'BUG-08', 'BUG-09', 'BUG-10', 'BUG-11', 'BUG-12', 'BUG-13', 'BUG-14', 'BUG-15'];
+
+let S = null;   // persisted state
+let D = null;   // generated (deterministic) merchant data
+function bug(id) { return !!(S && S.bugs.indexOf(id) !== -1); }
+
+/* ---------- utils ---------- */
+function mulberry(seed) { let v = seed >>> 0; return () => { v = (v + 0x6D2B79F5) | 0; let t = Math.imul(v ^ (v >>> 15), v | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function rhu(n, d) { const s = n < 0 ? -1 : 1; const a = Math.abs(n); return s * Math.floor((2 * a + d) / (2 * d)); }
+function addDays(ds, n) { const t = Date.parse(ds + 'T00:00:00Z') + n * 86400000; return new Date(t).toISOString().slice(0, 10); }
+function dow(ds) { return new Date(ds + 'T00:00:00Z').getUTCDay(); }
+function us(ds) { if (!ds) return ''; return ds.slice(5, 7) + '/' + ds.slice(8, 10) + '/' + ds.slice(0, 4); }
+function fmtNum(c) { const a = Math.abs(c); return (c < 0 ? '-' : '') + Math.floor(a / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '.' + String(a % 100).padStart(2, '0'); }
+function money(c) { const s = fmtNum(c); return s[0] === '-' ? '-$' + s.slice(1) : '$' + s; }
+function plain(c) { return (c < 0 ? '-' : '') + Math.floor(Math.abs(c) / 100) + '.' + String(Math.abs(c) % 100).padStart(2, '0'); }
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const CARD_NAMES = { VS: 'Visa', MC: 'Mastercard', AXP: 'American Express', DISC: 'Discover' };
+
+/* ---------- merchant & reference data (all fictional) ---------- */
+const MERCHANT = { dba: 'Harbor Lane Bistro', legal: 'Harbor Lane Bistro, LLC', street: '42 Dockside Ave', city: 'Port Ellis', state: 'NY', zip: '11930', mid: '840000001234567' };
+const PLATFORMS = [
+  { id: 'quickfund', name: 'QuickFund Capital', tag: 'Business funding from $3,000 to $300,000', active: true, reports: [] },
+  { id: 'paycrm', name: 'PayCRM', tag: 'Integrated customer management', active: true, reports: [] },
+  { id: 'gatewayone', name: 'GatewayOne', tag: 'Online payment gateway', active: false },
+  { id: 'giftwave', name: 'GiftWave', tag: 'Integrated gift cards', active: true, reports: ['Card Inventory Report', 'Daily Activity Report', 'Pooling Details Report', 'Live View Report'] },
+  { id: 'tabletpos', name: 'TabletPOS', tag: 'Retail & restaurant POS', active: false },
+  { id: 'tableflow', name: 'TableFlow', tag: 'Flexible restaurant management', active: true, reports: ['Live Transaction Report', 'Totals Summary Report', 'Hourly Sales Report', 'Daily Sales Report', 'Weekly Sales Report', 'Monthly Sales Report'] },
+  { id: 'orderdash', name: 'OrderDash', tag: 'Easy online ordering for restaurants', active: false }
+];
+const ISO_CATALOG = [
+  ['EQ-101', 'terminals', 'TX-100 Countertop Terminal', '3G, Dial', 17900, 'Countertop terminal with built-in receipt printer and contactless reader.'],
+  ['EQ-102', 'terminals', 'TX-300 Smart Terminal', 'Dial, IP', 17900, 'Android smart terminal with 5" touchscreen.'],
+  ['EQ-103', 'terminals', 'Mobile Reader M1', 'IP, Wi-Fi', 10000, 'Pocket-size card reader that pairs with a phone or tablet.'],
+  ['EQ-104', 'terminals', 'TX-500 Wireless Terminal', 'Wi-Fi', 26900, 'Portable terminal for pay-at-table service.'],
+  ['EQ-105', 'terminals', 'TX-550 Multi-Comm Terminal', 'IP, Dial, Wi-Fi', 23900, 'Terminal with automatic fallback between connections.'],
+  ['EQ-106', 'terminals', 'Gateway Box GB-14', 'IP', 46900, 'Network gateway for multi-lane stores.'],
+  ['EQ-107', 'terminals', 'TX-4G Cellular Terminal', 'IP, 4G', 15000, 'Cellular terminal for markets and deliveries.'],
+  ['EQ-201', 'pos', 'POS Station 15"', 'IP', 129900, 'All-in-one POS screen with stand.'],
+  ['EQ-202', 'pos', 'Thermal Receipt Printer', 'IP', 2100, 'Ethernet thermal receipt printer.'],
+  ['EQ-203', 'pos', 'Kitchen Impact Printer', 'IP', 1900, 'Impact printer for hot kitchens.'],
+  ['EQ-204', 'pos', 'Cash Drawer', '—', 1400, 'Steel cash drawer, 5 bill / 8 coin.'],
+  ['EQ-301', 'paper', 'Thermal Paper Rolls (50)', '—', 3900, 'Case of 50 thermal rolls, 2 1/4".'],
+  ['EQ-302', 'paper', 'Ink Ribbons (12)', '—', 2400, 'Box of 12 black/red ribbons.']
+].map(r => ({ sku: r[0], cat: r[1], name: r[2], comm: r[3], price: r[4], desc: r[5] }));
+const ISO_CATS = [['terminals', 'Terminals & PIN Pads'], ['pos', 'POS Systems & Peripherals'], ['paper', 'Paper & Supplies']];
+const SHIP_METHODS = [['ground', 'Ground', 0], ['2day', '2nd Day', 2500], ['nextday', 'Next Day', 4500]];
+const SEED_APPS = [
+  { id: 'APP-1001', dba: 'Grill Garage AZ', legal: 'Grill Garage Holdings LLC', addr: '38 Binney Street, Boston, MA 02115', legalAddr: '38 Binney Street, Boston, MA 02115', email: 'owner@grillgarage.test', phone: '(555) 010-2001' },
+  { id: 'APP-1002', dba: 'Sunrise Yoga Studio', legal: 'Sunrise Wellness Inc.', addr: '910 Lakeview Rd, Austin, TX 78701', legalAddr: 'PO Box 2210, Austin, TX 78768', email: 'hello@sunriseyoga.test', phone: '(555) 010-2002' },
+  { id: 'APP-1003', dba: 'Maple & Co. Hardware', legal: 'Maple and Company, Inc.', addr: '5 Elm Street, Burlington, VT 05401', legalAddr: '5 Elm Street, Burlington, VT 05401', email: 'store@maplehw.test', phone: '(555) 010-2003' }
+];
+const ISO_ADDR = 'Partner ISO Services, 1107 21st Ave, Clarkston, WA 99403';
+
+function freshState(seed) {
+  return {
+    v: 3, seed: seed, today: DEFAULT_TODAY, bugs: BUG_IDS.slice(),
+    password: 'Demo@1234',
+    profile: { first: 'Alex', last: 'Morgan', email: 'merchant@demo.test', phone: '5550101234', street: MERCHANT.street, city: MERCHANT.city, state: MERCHANT.state, zip: MERCHANT.zip, role: 'Owner' },
+    users: [{ id: 'U-1', name: 'Alex Morgan', email: 'merchant@demo.test', role: 'Owner', status: 'Active' },
+            { id: 'U-2', name: 'Jamie Chen', email: 'jamie@demo.test', role: 'Manager', status: 'Active' },
+            { id: 'U-3', name: 'Priya Nair', email: 'priya@demo.test', role: 'Viewer', status: 'Invited' }],
+    saqDone: false,
+    notifications: [
+      { id: 'N-1', title: 'Offline Download : Search Transactions Report PDF download link', sub: 'Search Transactions Report - PDF for file September 2026', date: '2026-10-06', read: false, link: '#/pdf/search-transactions?mode=month&month=9&year=2026' },
+      { id: 'N-2', title: 'Statement available : October 2026', sub: 'Your October 2026 merchant statement is ready.', date: '2026-11-03', read: false, link: '#/reports/merchant-statements/2026-10' }
+    ],
+    apps: SEED_APPS.map(a => Object.assign({ status: 'Pending Equipment', equip: null, program: 'free', cart: [], shipTo: null, shipMethod: null, payment: null, order: null }, a)),
+    counters: { n: 2, u: 3 }
+  };
+}
+
+/* ---------- deterministic merchant data ---------- */
+function genData(seed) {
+  const r = mulberry(seed);
+  const ri = (a, b) => a + Math.floor(r() * (b - a + 1));
+  const cardPick = () => { const x = r(); return x < 0.5 ? 'VS' : x < 0.75 ? 'MC' : x < 0.93 ? 'AXP' : 'DISC'; };
+  const out = { txns: [], batches: [], ach: [], chargebacks: [], uploads: [], statements: [], fees: {} };
+  let bSeq = 441000, tSeq = 0, trace = 91000010000400;
+  for (let d = DATA_START; d <= DATA_END; d = addDays(d, 1)) {
+    const base = [120, 70, 75, 80, 90, 125, 135][dow(d)];
+    const n = base + ri(-20, 20);
+    const nb = r() < 0.18 ? 2 : 1;
+    const closes = nb === 2 ? [ri(14 * 60, 15 * 60), ri(19 * 60, 21 * 60 + 30)] : [ri(19 * 60, 21 * 60 + 30)];
+    const bs = closes.map((c, i) => ({ id: String(++bSeq), number: '980' + String(bSeq).padStart(8, '0'), closeDate: d, closeMin: c, deviceId: '80', depositDate: addDays(d, 1), amount: 0, count: 0, items: [] }));
+    const dayTx = [];
+    for (let i = 0; i < n; i++) {
+      const sec = ri(7 * 3600, closes[nb - 1] * 60 - 300);
+      dayTx.push({ sec: sec, action: 'Sale', card: cardPick(), amount: Math.max(300, Math.round((3 + 230 * Math.pow(r(), 2.3)) * 100)), last4: String(ri(0, 9999)).padStart(4, '0') });
+    }
+    if (r() < 0.25) { const k = ri(1, 2); for (let i = 0; i < k; i++) dayTx.push({ sec: ri(9 * 3600, closes[nb - 1] * 60 - 600), action: 'Refund', card: cardPick(), amount: ri(10, 60) * 100 + ri(0, 99), last4: String(ri(0, 9999)).padStart(4, '0') }); }
+    dayTx.sort((a, b) => a.sec - b.sec);
+    dayTx.forEach(t => {
+      const b = bs.find(x => x.closeMin * 60 >= t.sec) || bs[bs.length - 1];
+      const hh = String(Math.floor(t.sec / 3600)).padStart(2, '0'), mm = String(Math.floor(t.sec / 60) % 60).padStart(2, '0'), ss = String(t.sec % 60).padStart(2, '0');
+      const tx = { id: 'T' + String(++tSeq).padStart(6, '0'), date: d, time: hh + ':' + mm + ':' + ss, card: t.card, cardNo: '******' + t.last4, last4: t.last4, action: t.action, amount: t.amount, batchId: b.id };
+      out.txns.push(tx); b.items.push(tx); b.count++; b.amount += t.action === 'Refund' ? -t.amount : t.amount;
+    });
+    bs.forEach(b => {
+      const cm = b.closeMin; b.closeTime = String(Math.floor(cm / 60)).padStart(2, '0') + ':' + String(cm % 60).padStart(2, '0') + ':' + String(ri(0, 59)).padStart(2, '0');
+      out.batches.push(b);
+      out.ach.push({ id: 'D' + (++trace), depositDate: b.depositDate, amount: b.amount, tranType: 'DEP', dpTy: '3', crdType: 'BTOT', tranCode: 'Checking Deposit', aba: '011000015', account: '****5143', trace: '0' + trace, batchId: b.id });
+    });
+    const up = { id: 'DailyUpload-' + d + '_01', fileDate: d, start: d + ' 20:30:' + String(ri(10, 59)).padStart(2, '0'), downloaded: addDays(d, 1), collections: nb, records: dayTx.length, success: dayTx.length, failed: 0 };
+    up.end = d + ' 20:3' + ri(3, 8) + ':' + String(ri(10, 59)).padStart(2, '0');
+    out.uploads.push(up);
+  }
+  // monthly fees, chargebacks, statements
+  const months = fullMonths();
+  months.forEach(m => {
+    const mt = out.txns.filter(t => t.date.slice(0, 7) === m);
+    const sales = mt.filter(t => t.action === 'Sale').reduce((a, t) => a + t.amount, 0);
+    const fee = rhu(sales * 195, 10000) + 2500; out.fees[m] = fee;
+    const next = addDays(m + '-28', 4).slice(0, 7) + '-01';
+    out.ach.push({ id: 'D' + (++trace), depositDate: next, amount: -fee, tranType: 'DEB', dpTy: '3', crdType: 'MTOT', tranCode: 'Checking Debit', aba: '011000015', account: '****5143', trace: '0' + trace, batchId: '' });
+    const k = ri(1, 2);
+    for (let i = 0; i < k; i++) {
+      const sale = mt.filter(t => t.action === 'Sale')[ri(0, 200)];
+      let rec = addDays(sale.date, ri(8, 20)); if (rec.slice(0, 7) !== m) rec = m + '-28';
+      out.chargebacks.push({ id: 'CB' + String(out.chargebacks.length + 1).padStart(4, '0'), received: rec, caseNo: '2026' + String(ri(100000, 999999)), card: sale.card, last4: sale.last4, origDate: sale.date, amount: sale.amount, action: 'Debit' });
+      out.ach.push({ id: 'D' + (++trace), depositDate: addDays(rec, 1), amount: -sale.amount, tranType: 'DEB', dpTy: '3', crdType: 'CBK', tranCode: 'Chargeback Debit', aba: '011000015', account: '****5143', trace: '0' + trace, batchId: '' });
+    }
+  });
+  months.forEach(m => {
+    const submitted = out.batches.filter(b => b.closeDate.slice(0, 7) === m).reduce((a, b) => a + b.amount, 0);
+    const adj = out.chargebacks.filter(c => c.received.slice(0, 7) === m).reduce((a, c) => a + c.amount, 0);
+    const y = +m.slice(0, 4), mo = +m.slice(5, 7);
+    out.statements.push({ id: m, name: MONTHS[mo - 1] + ' ' + y + ' Statement', year: y, month: mo, period: m + '-01', submitted: submitted, thirdParty: 0, adjustments: adj, fees: out.fees[m], funded: submitted - 0 - adj - out.fees[m] });
+  });
+  out.ach.sort((a, b) => a.depositDate < b.depositDate ? -1 : a.depositDate > b.depositDate ? 1 : 0);
+  out.batchById = {}; out.batches.forEach(b => { out.batchById[b.id] = b; });
+  return out;
+}
+
+/* ---------- period filters ---------- */
+function period(q) {
+  const mode = q.mode || 'month';
+  if (mode === 'day') { const d = q.date || DATA_END; return { mode: mode, from: d, to: d, label: us(d) }; }
+  if (mode === 'range') { const f = q.from || addDays(DATA_END, -13), t = q.to || DATA_END; return { mode: mode, from: f, to: t, label: 'From ' + us(f) + ' To ' + us(t) }; }
+  if (mode === 'year') { const y = q.year || DATA_END.slice(0, 4); return { mode: mode, from: y + '-01-01', to: y + '-12-31', label: 'Year ' + y }; }
+  const y = +(q.year || DATA_END.slice(0, 4)), m = +(q.month || +DATA_END.slice(5, 7));
+  const from = y + '-' + String(m).padStart(2, '0') + '-01';
+  return { mode: 'month', from: from, to: addDays(addDays(from, 32).slice(0, 7) + '-01', -1), label: MONTHS[m - 1] + ' ' + y };
+}
+// end date is inclusive in every filter mode (By Day = a one-day period)
+function inPeriod(ds, p) { return ds >= p.from && ((bug('BUG-02') && p.mode === 'range') ? ds < p.to : ds <= p.to); }
+function fullMonths() { const out = []; for (let m = DATA_START.slice(0, 7); m < DATA_END.slice(0, 7); m = addDays(m + '-28', 4).slice(0, 7)) out.push(m); return out; }
+
+/* ---------- reports (single source of truth: D) ---------- */
+function rptTotals(q) {
+  const p = period(q); const by = {};
+  ['VS', 'MC', 'AXP', 'DISC'].forEach(c => { by[c] = { card: c, salesItems: 0, sales: 0, refundItems: 0, refunds: 0 }; });
+  D.txns.forEach(t => { if (!inPeriod(t.date, p)) return; const b = by[t.card]; if (t.action === 'Sale') { b.salesItems++; b.sales += t.amount; } else { b.refundItems++; b.refunds += t.amount; } });
+  const rows = Object.keys(by).map(k => by[k]).filter(r => r.salesItems + r.refundItems > 0);
+  rows.forEach(r => { r.avg = r.salesItems ? rhu(r.sales, r.salesItems) : 0; r.total = bug('BUG-01') ? r.sales : r.sales - r.refunds; });
+  return { p: p, rows: rows };
+}
+function rptBatches(q) {
+  const p = period(q); const key = q.dateType === 'funded' ? 'depositDate' : 'closeDate';
+  let rows = D.batches.filter(b => inPeriod(b[key], p));
+  if (bug('BUG-13')) rows = rows.map(b => Object.assign({}, b, { count: b.items.filter(t => t.action === 'Sale').length }));
+  return { p: p, rows: rows };
+}
+// net amount of a list of transactions: sales add, refunds subtract
+function searchNet(rows) { return rows.reduce((a, t) => a + (t.action === 'Refund' && !bug('BUG-14') ? -t.amount : t.amount), 0); }
+function rptSearch(q) {
+  const p = period(q);
+  return { p: p, rows: D.txns.filter(t => inPeriod(t.date, p) && (!q.type || t.action === q.type) && (!q.last4 || t.last4 === q.last4) && (!q.amount || plain(t.amount) === Number(q.amount).toFixed(2))) };
+}
+function rptAch(q) {
+  const p = period(q);
+  return { p: p, rows: D.ach.filter(a => inPeriod(a.depositDate, p) && (!q.tranCode || a.tranCode === q.tranCode)) };
+}
+function achIncluded(achId) {
+  const a = D.ach.find(x => x.id === achId); if (!a || !a.batchId) return { ach: a, rows: [] };
+  const by = {};
+  D.batchById[a.batchId].items.forEach(t => { const r = by[t.card] = by[t.card] || { card: t.card, count: 0, total: 0 }; r.count++; r.total += t.action === 'Refund' ? -t.amount : t.amount; });
+  let rows = Object.keys(by).map(k => by[k]);
+  if (bug('BUG-08')) rows = rows.filter(x => x.card !== 'DISC');
+  return { ach: a, rows: rows };
+}
+function rptUploads(q) {
+  const p = period(q); const key = q.uploadType === 'downloaded' ? 'downloaded' : 'fileDate';
+  return { p: p, rows: D.uploads.filter(u => inPeriod(u[key], p)) };
+}
+function rptChargebacks(q) {
+  const p = period(q);
+  return { p: p, rows: D.chargebacks.filter(c => inPeriod(c.received, p) && (!q.last4 || c.last4 === q.last4)) };
+}
+function rptDiscount(q) {
+  const p = period(q); const rows = []; let day = null, acc = null;
+  const bs = D.batches.filter(b => inPeriod(b.closeDate, p));
+  bs.forEach((b, i) => {
+    if (!acc || acc.date !== b.closeDate) acc = { date: b.closeDate, items: 0, amount: 0 };
+    acc.items += b.count; acc.amount = bug('BUG-07') ? b.amount : acc.amount + b.amount;
+    rows.push({ key: b.number, number: b.number, date: b.closeDate, items: b.count, discount: 0, amount: b.amount, funded: b.amount, total: false });
+    const nxt = bs[i + 1];
+    if (!nxt || nxt.closeDate !== b.closeDate) rows.push({ key: 'DT-' + b.closeDate, number: 'DAILY TOTAL', date: b.closeDate, items: acc.items, discount: 0, amount: acc.amount, funded: acc.amount, total: true });
+  });
+  return { p: p, rows: rows };
+}
+function rptStatements(q) {
+  // a statement covers a calendar month; it matches when its month overlaps the selected period
+  const p = period(q);
+  return { p: p, rows: D.statements.filter(s => { const end = addDays(addDays(s.period, 32).slice(0, 7) + '-01', -1); return s.period <= p.to && end >= p.from; }) };
+}
+
+/* ---------- dashboard metrics ---------- */
+function overview(sel) {
+  const today = S.today; let p;
+  if (sel === 'all') p = { from: '0000', to: '9999' };
+  else if (sel === 'month') p = { from: today.slice(0, 7) + '-01', to: today };
+  else p = { from: sel + '-01-01', to: sel + '-12-31' };
+  const tx = D.txns.filter(t => t.date >= p.from && t.date <= p.to);
+  const sales = tx.filter(t => t.action === 'Sale');
+  const batchTotal = D.batches.filter(b => b.closeDate >= p.from && b.closeDate <= p.to).reduce((a, b) => a + b.amount, 0);
+  const counts = [0, 0, 0, 0, 0, 0, 0]; tx.forEach(t => { counts[dow(t.date)]++; });
+  let best = -1; counts.forEach((c, i) => { if (c > 0 && (best < 0 || c > counts[best])) best = i; });
+  if (best >= 0 && bug('BUG-06')) best = (best + 1) % 7;
+  return {
+    batchTotal: batchTotal, count: tx.length,
+    highest: sales.length ? Math.max.apply(null, sales.map(t => t.amount)) : 0,
+    lowest: sales.length ? Math.min.apply(null, sales.map(t => t.amount)) : 0,
+    avg: sales.length ? rhu(sales.reduce((a, t) => a + t.amount, 0), sales.length) : 0,
+    busiest: best >= 0 ? DAYS[best] : '-',
+    chargebacks: D.chargebacks.filter(c => c.received >= p.from && c.received <= p.to).reduce((a, c) => a + c.amount, 0)
+  };
+}
+function trend15() {
+  const days = []; for (let i = 15; i >= 1; i--) days.push(addDays(S.today, -i));
+  const per = days.map(d => { const tx = D.txns.filter(t => t.date === d); const s = tx.filter(t => t.action === 'Sale'); const rf = tx.filter(t => t.action === 'Refund');
+    return { d: d, count: tx.length, sales: s.reduce((a, t) => a + t.amount, 0), avg: s.length ? rhu(s.reduce((a, t) => a + t.amount, 0), s.length) : 0, refunds: rf.reduce((a, t) => a + t.amount, 0) }; });
+  const has = per.some(x => x.count > 0);
+  const avg = k => rhu(per.reduce((a, x) => a + x[k], 0), 15);
+  return { has: has, per: per, avgCount: Math.round(per.reduce((a, x) => a + x.count, 0) / 15), avgTicket: avg('avg'), avgSales: avg('sales'), avgRefunds: avg('refunds') };
+}
+
+/* ---------- ISO order maths ---------- */
+function isoPrice(app, item) { return (app.program === 'free' && item.cat === 'terminals' && !bug('BUG-09')) ? 0 : item.price; }
+// a payment covers the order as it was when paid (cart lines + shipping method)
+function orderSig(app) { return JSON.stringify([app.cart.map(l => [l.sku, l.qty, l.price]), app.shipMethod]); }
+function paymentValid(app) { return !!app.payment && (bug('BUG-15') || app.payment.sig === orderSig(app)); }
+function isoTotals(app) {
+  const sub = app.cart.reduce((a, l) => a + l.price * l.qty, 0);
+  const sm = SHIP_METHODS.find(m => m[0] === app.shipMethod); const ship = sm ? sm[2] : 0;
+  return { sub: sub, ship: ship, total: sub + ship, reviewTotal: bug('BUG-10') ? sub : sub + ship };
+}
+
+/* ---------- reconciliation ---------- */
+function runRecon() {
+  const sum = (a, f) => a.reduce((x, y) => x + f(y), 0);
+  const checks = [];
+  const add = (id, name, exp, act, off) => checks.push({ id: id, name: name, expected: exp, actual: act, variance: act - exp, offending: off || [], status: exp === act && !(off && off.length) ? 'PASS' : 'FAIL' });
+  const months = fullMonths().concat([DATA_END.slice(0, 7)]);
+  const off1 = []; let e1 = 0, a1 = 0;
+  months.forEach(m => { const q = { mode: 'month', year: m.slice(0, 4), month: m.slice(5) }; const t = sum(rptTotals(q).rows, r => r.total), b = sum(rptBatches(q).rows, r => r.amount); e1 += b; a1 += t; if (t !== b) off1.push(m); });
+  add('R1', 'Totals Summary total submitted = Σ settled batch amounts (per month)', e1, a1, off1);
+  add('R2', 'Σ settled batch amounts = Σ ACH batch deposits (BTOT)', sum(D.batches, b => b.amount), sum(D.ach.filter(a => a.crdType === 'BTOT'), a => a.amount));
+  const allMonths = fullMonths().concat([DATA_END.slice(0, 7)]); const mq = m => ({ mode: 'month', year: m.slice(0, 4), month: String(+m.slice(5)) });
+  const trueCount = sum(D.batches, b => b.count); const off3 = []; let a3 = trueCount;
+  allMonths.forEach(m => { const bc = sum(rptBatches(mq(m)).rows, b => b.count), sc = rptSearch(mq(m)).rows.length; if (bc !== sc) { off3.push(m); if (a3 === trueCount) a3 = trueCount - sc + bc; } });
+  const rangeCount = rptSearch({ mode: 'range', from: DATA_START, to: DATA_END }).rows.length; if (rangeCount !== trueCount) { off3.push('range'); if (a3 === trueCount) a3 = rangeCount; }
+  add('R3', 'Settled Batches trans count = Search Transactions row count (per month and full range)', trueCount, a3, off3);
+  const lm = fullMonths().slice(-1)[0]; const dq = { mode: 'month', year: lm.slice(0, 4), month: String(+lm.slice(5)) }; const dr = rptDiscount(dq).rows;
+  const off4 = dr.filter(r => r.total).filter(r => r.amount !== sum(D.batches.filter(b => b.closeDate === r.date), b => b.amount)).map(r => r.date);
+  add('R4', 'Daily Discount Calculator daily totals = Σ batch amounts per day', sum(rptBatches(dq).rows, b => b.amount), sum(dr.filter(r => r.total), r => r.amount), off4);
+  const off5 = D.ach.filter(a => a.crdType === 'BTOT').filter(a => sum(achIncluded(a.id).rows, r => r.total) !== a.amount).map(a => a.id);
+  add('R5', 'ACH "What is included" card-type totals = deposit amount', 0, off5.length, off5);
+  const off6 = []; let e6 = 0, a6 = 0;
+  YEARS.forEach(y => { const o = overview(y).batchTotal, t = sum(rptTotals({ mode: 'year', year: y }).rows, r => r.total); e6 += t; a6 += o; if (o !== t) off6.push(y); });
+  add('R6', 'Business Overview batch total = Totals Summary total (per year)', e6, a6, off6);
+  const off7 = D.statements.filter(s => s.funded !== s.submitted - s.thirdParty - s.adjustments - s.fees || s.adjustments !== sum(D.chargebacks.filter(c => c.received.slice(0, 7) === s.id), c => c.amount)).map(s => s.id);
+  add('R7', 'Statement funded = submitted − third party − chargebacks − fees', 0, off7.length, off7);
+  const subs = S.apps.filter(a => a.order);
+  const off8 = subs.filter(a => sum(a.order.lines, l => l.price * l.qty) + a.order.ship !== a.order.total).map(a => a.id);
+  add('R8', 'Submitted equipment orders: Σ lines + shipping = order total', 0, off8.length, off8);
+  const off9 = []; let e9 = 0, a9 = 0;
+  allMonths.forEach(m => { const b = sum(rptBatches(mq(m)).rows, x => x.amount), t = searchNet(rptSearch(mq(m)).rows); e9 += b; a9 += t; if (b !== t) off9.push(m); });
+  add('R9', 'Search Transactions net total = Σ settled batch amounts (per month)', e9, a9, off9);
+  const off10 = []; let e10 = 0, a10 = 0;
+  subs.filter(a => a.order.lines.length).forEach(a => { const due = sum(a.order.lines, l => l.price * l.qty) + a.order.ship; const paid = a.order.paid || 0; e10 += due; a10 += paid; if (paid !== due) off10.push(a.id); });
+  add('R10', 'Submitted equipment orders are fully paid: amount paid = Σ lines + shipping', e10, a10, off10);
+  return { ranAt: S.today, activeBugs: S.bugs.slice(), allPassed: checks.every(c => c.status === 'PASS'), passed: checks.filter(c => c.status === 'PASS').length, failed: checks.filter(c => c.status === 'FAIL').length, checks: checks };
+}
+
+function saveState() { try { localStorage.setItem(APP_KEY, JSON.stringify(S)); } catch (e) { /* storage unavailable */ } }
+function loadState() { try { const s = localStorage.getItem(APP_KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+
+/* =====================================================================
+   UI helpers: router, table, filters, toasts, layout
+   ===================================================================== */
+const UI = { tables: {}, modal: null, isoTab: 'terminals', isoSearch: '', isoSel: null, custom: null, payMethod: null, cardForm: null, menu: false, carousel: 0, overviewSel: 'month', banner: null };
+const TABLES = {};
+function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function tid(s) { return String(s).replace(/[^A-Za-z0-9_-]+/g, '-'); }
+function $(s, r) { return (r || document).querySelector(s); }
+function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+function toast(type, msg) {
+  const box = $('#toasts'); if (!box) return;
+  const el = document.createElement('div'); el.className = 'toast toast-' + type; el.setAttribute('data-testid', 'toast-' + type); el.textContent = msg; box.appendChild(el);
+  setTimeout(() => { el.remove(); }, 4000);
+}
+function parseHash() {
+  const h = (location.hash || '#/dashboard').slice(1); const qi = h.indexOf('?');
+  const path = qi < 0 ? h : h.slice(0, qi); const q = {};
+  if (qi >= 0) h.slice(qi + 1).split('&').forEach(kv => { if (!kv) return; const i = kv.indexOf('='); q[decodeURIComponent(i < 0 ? kv : kv.slice(0, i))] = i < 0 ? '' : decodeURIComponent(kv.slice(i + 1).replace(/\+/g, ' ')); });
+  return { path: path, parts: path.split('/').filter(Boolean), q: q };
+}
+function qs(o) { return Object.keys(o).filter(k => o[k] !== '' && o[k] != null).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(o[k])).join('&'); }
+function go(path, q) { const s = qs(q || {}); location.hash = '#' + path + (s ? '?' + s : ''); }
+function head(title, crumb, right) { return '<div class="page-head"><div>' + (crumb ? '<div class="crumb">' + crumb + '</div>' : '') + '<h1 data-testid="page-title">' + esc(title) + '</h1></div>' + (right || '') + '</div>'; }
+
+/* ---------- table: sort, 10-row pages, totals, CSV ---------- */
+function table(cfg) {
+  const st = UI.tables[cfg.id] = UI.tables[cfg.id] || { sort: null, dir: 'asc', page: 1, sig: '' };
+  const sig = location.hash + '|' + cfg.rows.length; if (st.sig !== sig) { st.sig = sig; st.page = 1; }
+  const val = (c, r) => c.val ? c.val(r) : r[c.key];
+  let rows = cfg.rows.slice();
+  if (st.sort) {
+    const c = cfg.cols.find(x => x.key === st.sort); const dir = st.dir === 'desc' ? -1 : 1;
+    rows.sort((a, b) => {
+      let x = val(c, a), y = val(c, b);
+      if (c.money && bug('BUG-04')) { x = money(x); y = money(y); }
+      if (typeof x === 'number' && typeof y === 'number') return (x - y) * dir;
+      return String(x).localeCompare(String(y)) * dir;
+    });
+  }
+  TABLES[cfg.id] = { cols: cfg.cols, rows: rows, title: cfg.title || cfg.id, period: cfg.period || '' };
+  const n = rows.length, pages = Math.max(1, Math.ceil(n / PAGE_SIZE)); if (st.page > pages) st.page = pages;
+  const start = (st.page - 1) * PAGE_SIZE + (bug('BUG-03') && st.page > 1 ? 1 : 0);
+  const pr = rows.slice(start, start + PAGE_SIZE);
+  const cell = (c, r) => c.render ? c.render(r) : c.money ? esc(money(val(c, r))) : c.date ? esc(us(val(c, r))) : esc(val(c, r));
+  let h = '<div class="tbl" data-testid="' + cfg.id + '"><div class="tbl-scroll"><table><thead><tr>';
+  cfg.cols.forEach(c => { const s = st.sort === c.key;
+    h += '<th class="' + (c.money || c.num ? 'num ' : '') + (c.nosort ? '' : 'sortable') + '"' + (c.nosort ? '' : ' data-action="sort" data-table="' + cfg.id + '" data-key="' + c.key + '"') + ' data-testid="' + cfg.id + '-col-' + c.key + '"' + (s ? ' data-sort-dir="' + st.dir + '"' : '') + '>' + esc(c.label) + (s ? (st.dir === 'asc' ? ' ↑' : ' ↓') : '') + '</th>'; });
+  h += '</tr></thead><tbody>';
+  if (!pr.length) h += '<tr><td colspan="' + cfg.cols.length + '" class="empty" data-testid="' + cfg.id + '-empty">' + esc(cfg.empty || 'No data available for the selected filter.') + '</td></tr>';
+  pr.forEach(r => { const k = cfg.key(r);
+    h += '<tr data-testid="' + cfg.id + '-row-' + tid(k) + '" data-row-key="' + esc(k) + '"' + (cfg.rowClass ? ' class="' + cfg.rowClass(r) + '"' : '') + '>';
+    cfg.cols.forEach(c => { h += '<td class="' + (c.money || c.num ? 'num' : '') + '" data-testid="' + cfg.id + '-cell-' + tid(k) + '-' + c.key + '">' + cell(c, r) + '</td>'; });
+    h += '</tr>'; });
+  h += '</tbody>';
+  if (cfg.totals && n) {
+    const t = cfg.totals(rows);
+    h += '<tfoot><tr data-testid="' + cfg.id + '-totals-row">' + cfg.cols.map((c, i) => { const has = Object.prototype.hasOwnProperty.call(t, c.key);
+      return '<td class="' + (c.money || c.num ? 'num' : '') + '"' + (has ? ' data-testid="' + cfg.id + '-total-' + c.key + '"' : '') + '>' + (has ? esc(c.money ? money(t[c.key]) : t[c.key]) : i === 0 ? 'Total:' : '') + '</td>'; }).join('') + '</tr></tfoot>';
+  }
+  h += '</table></div><div class="pager"><span data-testid="' + cfg.id + '-page-info">' + (n ? ((st.page - 1) * PAGE_SIZE + 1) + ' - ' + Math.min(n, st.page * PAGE_SIZE) : 0) + ' of ' + n + ' items</span><span class="sp"></span>' +
+    '<button class="pg" data-action="page" data-table="' + cfg.id + '" data-page="' + (st.page - 1) + '" data-testid="' + cfg.id + '-page-prev"' + (st.page <= 1 ? ' disabled' : '') + '>‹</button>';
+  for (let p = 1; p <= pages; p++) { if (pages > 7 && Math.abs(p - st.page) > 1 && p !== 1 && p !== pages) { if (p === 2 || p === pages - 1) h += '<span>…</span>'; continue; }
+    h += '<button class="pg' + (p === st.page ? ' on' : '') + '" data-action="page" data-table="' + cfg.id + '" data-page="' + p + '" data-testid="' + cfg.id + '-page-' + p + '">' + p + '</button>'; }
+  h += '<button class="pg" data-action="page" data-table="' + cfg.id + '" data-page="' + (st.page + 1) + '" data-testid="' + cfg.id + '-page-next"' + (st.page >= pages ? ' disabled' : '') + '>›</button></div></div>';
+  return h;
+}
+function csvField(v) { const s = String(v == null ? '' : v); return (bug('BUG-05') ? /["\r\n]/ : /[",\r\n]/).test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+function tableCsv(id) {
+  const t = TABLES[id]; if (!t) return null;
+  const cols = t.cols.filter(c => !c.nocsv);
+  const lines = [['Report', t.title], ['Merchant', MERCHANT.legal], ['Merchant ID', MERCHANT.mid], ['Period', t.period], []].map(r => r.map(csvField).join(','));
+  lines.push(cols.map(c => csvField(c.label)).join(','));
+  t.rows.forEach(r => lines.push(cols.map(c => { const v = c.csv ? c.csv(r) : c.val ? c.val(r) : r[c.key]; return csvField(c.money ? plain(v) : c.date ? us(v) : v); }).join(',')));
+  return lines.join('\r\n') + '\r\n';
+}
+function download(name, text, type) {
+  window.QA_LAST_DOWNLOAD = { name: name, text: text };
+  try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + text], { type: type || 'text/csv;charset=utf-8' })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 300); } catch (e) { /* not supported */ }
+}
+
+/* ---------- report filter ---------- */
+function yearOpts(sel, years) { return (years || YEARS).map(y => '<option' + (String(sel) === y ? ' selected' : '') + '>' + y + '</option>').join(''); }
+function monthOpts(sel, blank) { return (blank ? '<option value="">Select Month</option>' : '') + MONTHS.map((m, i) => '<option value="' + (i + 1) + '"' + (String(sel) === String(i + 1) ? ' selected' : '') + '>' + m.slice(0, 3) + '</option>').join(''); }
+function filterForm(id, q, opts) {
+  opts = opts || {}; const mode = q.mode || 'month';
+  const modes = opts.modes || [['year', 'By Year'], ['month', 'By Month'], ['day', 'By Day'], ['range', 'By Date Range']];
+  let h = '<form class="filters" data-filter="' + id + '" data-testid="filter-form">';
+  (opts.pre || []).forEach(x => { h += x; });
+  if (modes.length) h += '<label>Filter by<select name="mode" data-testid="filter-mode">' + modes.map(m => '<option value="' + m[0] + '"' + (mode === m[0] ? ' selected' : '') + '>' + m[1] + '</option>').join('') + '</select></label>';
+  const vis = cls => cls.split(' ').indexOf('f-' + mode) === -1 ? ' hidden' : '';
+  h += '<label class="f-month"' + vis('f-month') + '>Month<select name="month" data-testid="filter-month">' + monthOpts(q.month || String(+DATA_END.slice(5, 7))) + '</select></label>' +
+    '<label class="f-month f-year"' + vis('f-month f-year') + '>Year<select name="year" data-testid="filter-year">' + yearOpts(q.year || DATA_END.slice(0, 4)) + '</select></label>' +
+    '<label class="f-day"' + vis('f-day') + '>Date<input type="date" name="date" min="' + DATA_START + '" max="' + DATA_END + '" value="' + esc(q.date || DATA_END) + '" data-testid="filter-date"></label>' +
+    '<label class="f-range"' + vis('f-range') + '>From Date<input type="date" name="from" value="' + esc(q.from || addDays(DATA_END, -13)) + '" data-testid="filter-from"></label>' +
+    '<label class="f-range"' + vis('f-range') + '>To Date<input type="date" name="to" value="' + esc(q.to || DATA_END) + '" data-testid="filter-to"></label>';
+  (opts.post || []).forEach(x => { h += x; });
+  h += '<div class="f-btns"><button class="btn btn-green" type="submit" data-testid="filter-apply">Filter</button><a class="btn" href="#/reports/' + id + '" data-testid="filter-clear">Clear Filter</a></div></form>';
+  return h;
+}
+function selField(name, label, options, val) { return '<label>' + label + '<select name="' + name + '" data-testid="filter-' + name + '">' + options.map(o => '<option value="' + esc(o[0]) + '"' + (String(val || '') === String(o[0]) ? ' selected' : '') + '>' + esc(o[1]) + '</option>').join('') + '</select></label>'; }
+function inField(name, label, val, ph) { return '<label>' + label + '<input name="' + name + '" value="' + esc(val || '') + '" placeholder="' + esc(ph || '') + '" data-testid="filter-' + name + '"></label>'; }
+
+/* ---------- icons ---------- */
+const ICON = {
+  dash: '<svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/></svg>',
+  rep: '<svg viewBox="0 0 24 24"><path d="M5 3h10l4 4v14H5zM8 12h8v2H8zm0 4h8v2H8zm0-8h5v2H8z"/></svg>',
+  sup: '<svg viewBox="0 0 24 24"><path d="M12 2a9 9 0 0 0-9 9v6a3 3 0 0 0 3 3h2v-7H5v-2a7 7 0 0 1 14 0v2h-3v7h3a3 3 0 0 0 2-1v1a2 2 0 0 1-2 2h-5v2h5a4 4 0 0 0 4-4V11a9 9 0 0 0-9-9z"/></svg>',
+  info: '<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2zm0-8h-2V7h2z"/></svg>',
+  gift: '<svg viewBox="0 0 24 24"><path d="M20 7h-3a3 3 0 1 0-5-3 3 3 0 1 0-5 3H4v5h1v9h14v-9h1zM13 19v-7h4v7zm-6 0v-7h4v7z"/></svg>',
+  iso: '<svg viewBox="0 0 24 24"><path d="M4 4h16v12H4zM2 18h20v2H2zM7 7h10v2H7zm0 4h6v2H7z"/></svg>',
+  qa: '<svg viewBox="0 0 24 24"><path d="M9 2v6L4 18a2 2 0 0 0 2 3h12a2 2 0 0 0 2-3l-5-10V2zm2 2h2v5l2 4H9l2-4z"/></svg>',
+  bell: '<svg viewBox="0 0 24 24"><path d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm6-6V11a6 6 0 0 0-5-6V4h-2v1a6 6 0 0 0-5 6v5l-2 2v1h16v-1z"/></svg>',
+  dl: '<svg viewBox="0 0 24 24"><path d="M11 3h2v9l3-3 1.4 1.4L12 15.8 6.6 10.4 8 9l3 3zM4 18h16v2H4z"/></svg>',
+  term: '<svg viewBox="0 0 48 48"><rect x="12" y="4" width="24" height="40" rx="4" fill="#1f2937"/><rect x="15" y="8" width="18" height="12" rx="1" fill="#60a5fa"/><g fill="#9ca3af"><rect x="15" y="24" width="5" height="4"/><rect x="21.5" y="24" width="5" height="4"/><rect x="28" y="24" width="5" height="4"/><rect x="15" y="30" width="5" height="4"/><rect x="21.5" y="30" width="5" height="4"/><rect x="28" y="30" width="5" height="4"/></g></svg>',
+  pos: '<svg viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="24" rx="2" fill="#1f2937"/><rect x="9" y="9" width="30" height="18" fill="#93c5fd"/><rect x="20" y="30" width="8" height="8" fill="#6b7280"/><rect x="12" y="38" width="24" height="4" rx="1" fill="#374151"/></svg>',
+  paper: '<svg viewBox="0 0 48 48"><circle cx="18" cy="24" r="12" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/><circle cx="18" cy="24" r="4" fill="#9ca3af"/><rect x="18" y="12" width="22" height="24" fill="#f3f4f6" stroke="#9ca3af" stroke-width="2"/></svg>'
+};
+function spark(vals) {
+  const w = 120, h = 36, mx = Math.max.apply(null, vals.concat([1]));
+  const pts = vals.map((v, i) => (i * w / (vals.length - 1)).toFixed(1) + ',' + (h - 2 - v / mx * (h - 6)).toFixed(1)).join(' ');
+  return '<svg class="spark" viewBox="0 0 ' + w + ' ' + h + '"><polyline points="0,' + h + ' ' + pts + ' ' + w + ',' + h + '" fill="#dbe7ff" stroke="none"/><polyline points="' + pts + '" fill="none" stroke="#2f5bea" stroke-width="1.6"/></svg>';
+}
+
+/* ---------- layout ---------- */
+function unread() { return S.notifications.filter(n => !n.read).length; }
+function layout(inner, active) {
+  const nav = [['dashboard', 'Dashboard', ICON.dash], ['reports', 'Reports', ICON.rep], ['support', 'Support', ICON.sup], ['product-info', 'Product Information', ICON.info], ['special-offers', 'Special Offers', ICON.gift], ['iso', 'Partner Hub', ICON.iso], ['qa', 'QA Console', ICON.qa]];
+  const p = S.profile;
+  return '<div class="app"><aside class="side"><div class="logo" data-testid="brand">CE<span>Pay</span></div>' +
+    nav.map(n => '<a href="#/' + n[0] + '" class="' + (active === n[0] ? 'on' : '') + '" data-testid="nav-' + n[0] + '">' + n[2] + '<span>' + n[1] + '</span></a>').join('') + '</aside>' +
+    '<div class="main"><header class="top"><div class="merch"><div class="mname" data-testid="merchant-name">' + esc(MERCHANT.dba.toUpperCase()) + '</div>' +
+    '<div class="maddr">' + esc(MERCHANT.street + ', ' + MERCHANT.city + ', ' + MERCHANT.state + ' ' + MERCHANT.zip) + '</div><div class="maddr">Merchant ID Number: <span data-testid="merchant-id">' + MERCHANT.mid + '</span></div></div>' +
+    '<a href="#/pci" class="saq ' + (S.saqDone ? 'saq-ok' : 'saq-due') + '" data-testid="saq-badge" title="PCI Self-Assessment Questionnaire">SAQ</a><span class="sp"></span>' +
+    '<a href="#/notifications" class="bell" data-testid="notifications-bell">' + ICON.bell + (unread() ? '<span class="cnt" data-testid="notifications-count">' + unread() + '</span>' : '') + '</a>' +
+    '<div class="user"><button class="avatar" data-action="menu" data-testid="user-menu">' + esc(p.first[0] + p.last[0]) + '</button>' +
+    (UI.menu ? '<div class="menu" data-testid="user-menu-list"><div class="mhead"><strong>' + esc(p.first + ' ' + p.last) + '</strong><span>' + esc(p.email) + '</span></div>' +
+      '<a href="#/profile" data-testid="menu-profile">Profile</a><a href="#/users" data-testid="menu-users">User Management</a><a href="#/change-password" data-testid="menu-change-password">Change Password</a><a href="#/notifications" data-testid="menu-notifications">Notifications</a></div>' : '') +
+    '</div></header><main id="page">' + (UI.banner ? '<div class="banner b-' + UI.banner[0] + '" data-testid="page-banner-' + UI.banner[0] + '">' + esc(UI.banner[1]) + '</div>' : '') + inner + '</main></div></div>';
+}
+
+/* =====================================================================
+   Report definitions (used by report pages, PDF view and CSV export)
+   ===================================================================== */
+const ALL_MODES = [['year', 'By Year'], ['month', 'By Month'], ['day', 'By Day'], ['range', 'By Date Range']];
+const sumBy = (rows, k) => rows.reduce((a, r) => a + (typeof k === 'function' ? k(r) : r[k]), 0);
+const REPORTS = {
+  'totals-summary': { title: 'Totals Summary Report', desc: 'Total sales summary separated by card type', run: rptTotals,
+    cols: [{ key: 'card', label: 'Card Type' }, { key: 'avg', label: 'Average Ticket', money: true }, { key: 'salesItems', label: 'Sales Items', num: true }, { key: 'sales', label: 'Sales Amount', money: true },
+      { key: 'refundItems', label: 'Refunds Items', num: true }, { key: 'refunds', label: 'Refunds Amount', money: true }, { key: 'total', label: 'Total Submitted Amount', money: true }],
+    totals: r => ({ salesItems: sumBy(r, 'salesItems'), sales: sumBy(r, 'sales'), refundItems: sumBy(r, 'refundItems'), refunds: sumBy(r, 'refunds'), total: sumBy(r, 'total') }), key: r => r.card },
+  'settled-batches': { title: 'Settled Batches / Transactions Report', desc: 'Amounts funded by batch ID', run: rptBatches,
+    pre: q => [selField('dateType', 'Date Type', [['batch', 'Batch Date'], ['funded', 'Funded Date']], q.dateType || 'batch')],
+    cols: [{ key: 'closeDate', label: 'Batch Close Date', date: true }, { key: 'closeTime', label: 'Close Time' }, { key: 'id', label: 'Batch ID (Front End)', render: b => '<a href="#/reports/search-transactions?mode=day&date=' + b.closeDate + '&batch=' + b.id + '">' + b.id + '</a>' },
+      { key: 'deviceId', label: 'Device ID' }, { key: 'amount', label: 'Batch Amount', money: true }, { key: 'count', label: 'Trans Count', num: true }, { key: 'depositDate', label: 'Deposit Date', date: true }],
+    totals: r => ({ amount: sumBy(r, 'amount'), count: sumBy(r, 'count') }), key: r => r.id },
+  'search-transactions': { title: 'Search Transactions Report', desc: 'Individual transaction list', run: rptSearch,
+    post: q => [selField('type', 'Trans Type', [['', 'All'], ['Sale', 'Sale'], ['Refund', 'Refund']], q.type), inField('last4', 'Last 4 Digits Of Card', q.last4, '1234'), inField('amount', 'Amount', q.amount, '0.00')],
+    cols: [{ key: 'date', label: 'Transaction Date', date: true }, { key: 'time', label: 'Time' }, { key: 'card', label: 'Card Type' }, { key: 'cardNo', label: 'Card No' }, { key: 'action', label: 'Action Code' }, { key: 'amount', label: 'Amount', money: true }, { key: 'batchId', label: 'BatchID' }],
+    totals: r => ({ amount: searchNet(r) }), key: r => r.id },
+  'ach-deposit': { title: 'ACH Deposit Report', desc: 'Amounts deposited to your bank', run: rptAch,
+    post: q => [selField('tranCode', 'Tran Code', [['', 'Select Tran Code'], ['Checking Deposit', 'Checking Deposit'], ['Checking Debit', 'Checking Debit'], ['Chargeback Debit', 'Chargeback Debit']], q.tranCode)],
+    cols: [{ key: 'depositDate', label: 'Deposit Date', date: true }, { key: 'amount', label: 'Amount', money: true }, { key: 'tranType', label: 'Tran Type' }, { key: 'dpTy', label: 'DP TY' }, { key: 'crdType', label: 'CRD Type' },
+      { key: 'tranCode', label: 'Tran Code' }, { key: 'aba', label: 'ABA Number' }, { key: 'account', label: 'Account Number' }, { key: 'trace', label: 'Trace Num' },
+      { key: 'inc', label: 'What is Included', nosort: true, val: a => a.batchId ? 'Open' : '', render: a => a.batchId ? '<a href="#/reports/ach-deposit/included/' + a.id + '" data-testid="ach-included-' + a.id + '">Open</a>' : '' }],
+    totals: r => ({ amount: sumBy(r, 'amount') }), key: r => r.id },
+  'merchant-statements': { title: 'Merchant Statements Report', desc: 'Current and historical merchant statements', custom: true },
+  'reconciliation': { title: 'Reconciliation Report', desc: 'Cross-report integrity checks: do all reports agree?', custom: true },
+  'daily-upload': { title: 'Daily Upload Report', desc: 'Daily file upload executions', run: rptUploads,
+    pre: q => [selField('uploadType', 'Date Type', [['file', 'File Date'], ['downloaded', 'Downloaded Date']], q.uploadType || 'file')],
+    cols: [{ key: 'id', label: 'Execution ID' }, { key: 'start', label: 'Execution Start Time' }, { key: 'end', label: 'Execution End Time' }, { key: 'collections', label: 'Total Collections', num: true },
+      { key: 'records', label: 'Total Records', num: true }, { key: 'success', label: 'Total Success', num: true }, { key: 'failed', label: 'Total Failed', num: true }, { key: 'downloaded', label: 'Downloaded Date', date: true }],
+    totals: r => ({ records: sumBy(r, 'records'), success: sumBy(r, 'success'), failed: sumBy(r, 'failed') }), key: r => r.id },
+  'chargebacks': { title: 'Chargebacks Report', desc: 'Disputed charges for Visa and Mastercard', run: rptChargebacks, modes: ALL_MODES,
+    post: q => [inField('last4', 'Last 4 Digits Of Card', q.last4, '1234')],
+    cols: [{ key: 'received', label: 'Received Date', date: true }, { key: 'caseNo', label: 'Case Number' }, { key: 'card', label: 'Card Type' }, { key: 'last4', label: 'Last Four Digits Of Card' },
+      { key: 'origDate', label: 'Original Transaction Date', date: true }, { key: 'amount', label: 'Amount', money: true }, { key: 'action', label: 'Action Code' }],
+    totals: r => ({ amount: sumBy(r, 'amount') }), key: r => r.id },
+  'discount-calculator': { title: 'Daily Discount Calculator', desc: 'Funded amounts after daily discount fee collection', run: rptDiscount,
+    cols: [{ key: 'number', label: 'Batch Number' }, { key: 'date', label: 'Batch Date', date: true }, { key: 'items', label: 'Number Of Items', num: true }, { key: 'discount', label: 'Discount Amount', money: true },
+      { key: 'amount', label: 'Batch Amount', money: true }, { key: 'funded', label: 'Funded Amount', money: true }],
+    key: r => r.key, rowClass: r => r.total ? 'daily-total' : '' }
+};
+const REPORT_ORDER = ['totals-summary', 'settled-batches', 'search-transactions', 'merchant-statements', 'daily-upload', 'chargebacks', 'ach-deposit', 'discount-calculator', 'reconciliation'];
+
+function pageReportsHub() {
+  return layout(head('Reports', 'Dashboard /') + '<div class="cards4">' + REPORT_ORDER.map(id => { const r = REPORTS[id];
+    return '<div class="rcard" data-testid="report-card-' + id + '"><div class="ric">' + ICON.rep + '</div><div class="rt">' + esc(r.title) + '</div><div class="rd">' + esc(r.desc) + '</div>' +
+      '<a class="lnk" href="#/reports/' + id + '" data-testid="view-report-' + id + '">' + (id === 'discount-calculator' ? 'View Calculator' : 'View Report') + '</a></div>'; }).join('') + '</div>', 'reports');
+}
+function defaultQ(id, q) {
+  const d = Object.assign({}, q);
+  if (!d.mode) {
+    if (id === 'chargebacks' || id === 'merchant-statements') { d.mode = 'year'; d.year = d.year || DATA_END.slice(0, 4); }
+    else { d.mode = 'month'; d.month = d.month || String(+DATA_END.slice(5, 7)); d.year = d.year || DATA_END.slice(0, 4); }
+  }
+  return d;
+}
+function reportButtons(id) {
+  return '<div class="rbtns"><button class="btn btn-red" data-action="pdf" data-report="' + id + '" data-testid="download-pdf">Download PDF</button><button class="btn btn-green" data-action="excel" data-report="' + id + '" data-testid="download-excel">Download Excel</button></div>';
+}
+function pageReport(id, q) {
+  const R = REPORTS[id]; if (!R) return pageNotFound();
+  if (id === 'merchant-statements') return pageStatements(q);
+  const qq = defaultQ(id, q); const res = R.run(qq);
+  let rows = res.rows; if (q.batch) rows = rows.filter(t => t.batchId === q.batch);
+  let h = head(R.title, 'Reports /', reportButtons(id));
+  h += '<p class="note">Batch close times are CST and approximate. Amounts are shown in USD.</p>';
+  h += filterForm(id, qq, { modes: R.modes, pre: R.pre ? R.pre(qq) : [], post: R.post ? R.post(qq) : [] });
+  h += '<div class="period" data-testid="report-period">' + esc(res.p.label) + '</div>';
+  h += table({ id: 'report-table', title: R.title, period: res.p.label, cols: R.cols, rows: rows, key: R.key, totals: R.totals, rowClass: R.rowClass });
+  return layout(h, 'reports');
+}
+function pageStatements(q) {
+  const qq = defaultQ('merchant-statements', q); const res = rptStatements(qq);
+  let h = head('Merchant Statements Report', 'Reports /', reportButtons('merchant-statements'));
+  h += '<p class="note">Statements are monthly. By Day and By Date Range show the statements for the months they fall in.</p>';
+  h += filterForm('merchant-statements', qq, { modes: ALL_MODES });
+  h += '<div class="period" data-testid="report-period">' + esc(res.p.label) + '</div>';
+  h += table({ id: 'report-table', title: 'Merchant Statements Report', period: res.p.label, rows: res.rows, key: s => s.id,
+    cols: [{ key: 'name', label: 'Report Name', render: s => '<a href="#/reports/merchant-statements/' + s.id + '" data-testid="statement-link-' + s.id + '">' + esc(s.name) + '</a>' }, { key: 'funded', label: 'Total Funded', money: true }] });
+  return layout(h, 'reports');
+}
+function statementBody(s) {
+  const row = (k, l, v, cls) => '<tr class="' + (cls || '') + '"><td>' + l + '</td><td class="num" data-testid="statement-' + k + '">' + money(v) + '</td></tr>';
+  return '<div class="stmt"><div class="stmt-head"><div><div class="stmt-brand">CorpEquip Pay</div><div class="muted">CorpEquip Pay Inc. · 100 Sample Street, Springfield, NY 11900</div></div><div class="notbill">THIS IS NOT A BILL</div></div>' +
+    '<div class="stmt-grid"><div><strong>' + esc(MERCHANT.legal) + '</strong><br>' + esc(MERCHANT.street) + '<br>' + esc(MERCHANT.city + ', ' + MERCHANT.state + ' ' + MERCHANT.zip) + '</div>' +
+    '<table class="kvt"><tr><td>Statement Period</td><td data-testid="statement-period">' + us(s.period) + ' - ' + us(addDays(addDays(s.period, 32).slice(0, 7) + '-01', -1)) + '</td></tr><tr><td>Merchant Number</td><td>' + MERCHANT.mid + '</td></tr><tr><td>Customer Service</td><td>1-800-555-0100</td></tr></table></div>' +
+    '<h3>Summary</h3><table class="sumt">' + row('submitted', 'Amounts Submitted', s.submitted) + row('third-party', 'Third Party Transactions', s.thirdParty) + row('adjustments', 'Adjustments/Chargebacks', -s.adjustments) +
+    row('fees', 'Fees Charged', -s.fees) + row('funded', 'Total Amount Funded to Your Bank', s.funded, 'tot') + '</table><p class="muted small">Amount Submitted − Third Party − Adjustments − Chargebacks − Fees Charged = Amount Funded</p></div>';
+}
+function pageStatement(sid) {
+  const s = D.statements.find(x => x.id === sid); if (!s) return pageNotFound();
+  return layout(head(s.name, 'Reports / Merchant Statements /', '<div class="rbtns"><a class="btn btn-red" href="#/pdf/statement?id=' + s.id + '" data-testid="download-pdf">Download PDF</a></div>') + statementBody(s), 'reports');
+}
+function pageAchIncluded(aid) {
+  const res = achIncluded(aid); if (!res.ach) return pageNotFound();
+  let h = head('ACH Deposit Report - Totals by Card Type', 'Reports / ACH Deposit Report /', '<div class="rbtns"><button class="btn btn-green" data-action="excel-table" data-table="ach-included" data-testid="download-excel">Download Excel</button></div>');
+  h += '<div class="kvrow"><span>Merchant ID: ' + MERCHANT.mid + '</span><span data-testid="ach-included-date">Deposit Date: ' + us(res.ach.depositDate) + '</span><span data-testid="ach-included-amount">Amount: ' + money(res.ach.amount) + '</span><span>ACH Record ID: ' + res.ach.trace + '</span></div>';
+  h += table({ id: 'ach-included', title: 'ACH Deposit Report - Totals by Card Type', period: us(res.ach.depositDate), rows: res.rows, key: r => r.card,
+    cols: [{ key: 'card', label: 'Card Type', val: r => CARD_NAMES[r.card] }, { key: 'count', label: 'Transaction Count', num: true }, { key: 'total', label: 'Transaction Totals', money: true }],
+    totals: r => ({ count: sumBy(r, 'count'), total: sumBy(r, 'total') }) });
+  return layout(h, 'reports');
+}
+function pagePdf(id, q) {
+  let title, label, body;
+  if (id === 'statement') {
+    const s = D.statements.find(x => x.id === q.id); if (!s) return pageNotFound();
+    title = s.name; label = s.name; body = statementBody(s);
+  } else {
+    const R = REPORTS[id]; if (!R || R.custom) return pageNotFound();
+    const qq = defaultQ(id, q); const res = R.run(qq); title = R.title; label = res.p.label;
+    const rows = res.rows.slice(0, 1000);
+    const tot = R.totals ? R.totals(res.rows) : null;
+    body = '<table class="pdft" data-testid="pdf-table"><thead><tr>' + R.cols.filter(c => !c.nosort || c.key !== 'inc').map(c => '<th class="' + (c.money || c.num ? 'num' : '') + '">' + esc(c.label) + '</th>').join('') + '</tr></thead><tbody>' +
+      rows.map(r => '<tr class="' + (R.rowClass ? R.rowClass(r) : '') + '">' + R.cols.filter(c => c.key !== 'inc').map(c => { const v = c.val ? c.val(r) : r[c.key]; return '<td class="' + (c.money || c.num ? 'num' : '') + '">' + esc(c.money ? money(v) : c.date ? us(v) : v) + '</td>'; }).join('') + '</tr>').join('') + '</tbody>' +
+      (tot ? '<tfoot><tr>' + R.cols.filter(c => c.key !== 'inc').map((c, i) => '<td class="' + (c.money || c.num ? 'num' : '') + '"' + (c.key in tot ? ' data-testid="pdf-total-' + c.key + '"' : '') + '>' + (c.key in tot ? esc(c.money ? money(tot[c.key]) : tot[c.key]) : i === 0 ? 'Total:' : '') + '</td>').join('') + '</tr></tfoot>' : '') + '</table>' +
+      (res.rows.length > 1000 ? '<p class="muted small">Showing the first 1,000 of ' + res.rows.length + ' rows.</p>' : '');
+  }
+  return '<div class="pdfwrap"><div class="pdfbar noprint"><button class="btn" data-action="back" data-testid="pdf-back">← Back</button><span class="sp"></span><button class="btn btn-red" data-action="print" data-testid="pdf-print">Print / Save as PDF</button></div>' +
+    '<div class="pdfpage" data-testid="pdf-page"><div class="pdfhead"><div><strong>' + esc(MERCHANT.dba.toUpperCase()) + '</strong><br>' + esc(MERCHANT.street.toUpperCase()) + '<br>' + esc((MERCHANT.city + ' ' + MERCHANT.state + ' ' + MERCHANT.zip).toUpperCase()) + '</div>' +
+    '<div class="r"><strong data-testid="pdf-title">' + esc(title) + '</strong><br><span data-testid="pdf-period">' + esc(label) + '</span><br><strong>Merchant ID: ' + MERCHANT.mid + '</strong></div></div>' +
+    (id === 'statement' ? '' : '<h2 class="pdftitle">' + esc(title) + '</h2>') + body + '<div class="pdffoot">Print Date: ' + us(S.today) + ' &nbsp; Page 1 / 1</div></div></div>';
+}
+
+/* ---------- reconciliation report (cross-report consistency) ---------- */
+const RECON_MONEY = ['R1', 'R2', 'R4', 'R6', 'R9', 'R10'];
+function reconLink(id, chk) {
+  if (/^\d{4}-\d{2}$/.test(id) && (chk === 'R3' || chk === 'R9')) return '<a href="#/reports/' + (chk === 'R3' ? 'settled-batches' : 'search-transactions') + '?mode=month&month=' + (+id.slice(5)) + '&year=' + id.slice(0, 4) + '">' + id + '</a>';
+  if (id === 'range') return '<a href="#/reports/search-transactions?mode=range&from=' + DATA_START + '&to=' + DATA_END + '">full date range</a>';
+  if (/^\d{4}-\d{2}$/.test(id) && chk === 'R7') return '<a href="#/reports/merchant-statements/' + id + '">' + id + '</a>';
+  if (/^\d{4}-\d{2}$/.test(id)) return '<a href="#/reports/totals-summary?mode=month&month=' + (+id.slice(5)) + '&year=' + id.slice(0, 4) + '">' + id + '</a>';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(id)) return '<a href="#/reports/discount-calculator?mode=day&date=' + id + '">' + us(id) + '</a>';
+  if (/^\d{4}$/.test(id)) return '<a href="#/reports/totals-summary?mode=year&year=' + id + '">' + id + '</a>';
+  if (/^D\d+$/.test(id)) return '<a href="#/reports/ach-deposit/included/' + id + '">' + id + '</a>';
+  if (/^APP-/.test(id)) return '<a href="#/iso/' + id + '/confirmation">' + id + '</a>';
+  return esc(id);
+}
+const RECON_WHERE = { R1: 'Totals Summary vs Settled Batches', R2: 'Settled Batches vs ACH Deposit', R3: 'Settled Batches vs Search Transactions (counts)', R4: 'Daily Discount Calculator vs Settled Batches',
+  R5: 'ACH Deposit vs What is Included', R6: 'Dashboard Business Overview vs Totals Summary', R7: 'Merchant Statements vs Chargebacks', R8: 'Partner Hub orders', R10: 'Partner Hub orders vs payments', R9: 'Search Transactions vs Settled Batches (amounts)' };
+function pageReconReport() {
+  const r = runRecon();
+  const fmt = (c, v) => RECON_MONEY.indexOf(c.id) !== -1 ? money(v) : String(v);
+  let h = head('Reconciliation Report', 'Reports /', '<button class="btn btn-primary" data-action="recon-rerun" data-testid="recon-run">Run checks</button>');
+  h += '<div class="banner b-' + (r.allPassed ? 'ok' : 'error') + '" data-testid="recon-overall" data-status="' + (r.allPassed ? 'PASS' : 'FAIL') + '">' +
+    (r.allPassed ? 'All ' + r.checks.length + ' checks passed — every report agrees.' : r.failed + ' of ' + r.checks.length + ' checks failed — some reports disagree. Open the offending records to see where.') + '</div>';
+  h += '<p class="note">Last generated ' + us(S.today) + '. Each check compares the same figures as shown by two different reports over the full data range (01/01/2026 – 11/15/2026).</p>';
+  h += table({ id: 'recon-report', title: 'Reconciliation Report', period: 'All data', rows: r.checks, key: c => c.id, cols: [
+    { key: 'id', label: 'Check' }, { key: 'where', label: 'Reports compared', val: c => RECON_WHERE[c.id] }, { key: 'name', label: 'Rule' },
+    { key: 'status', label: 'Result', render: c => '<span class="badge b-' + (c.status === 'PASS' ? 'ok' : 'error') + '" data-testid="recon-status-' + c.id + '">' + c.status + '</span>' },
+    { key: 'expected', label: 'Expected', num: true, render: c => esc(fmt(c, c.expected)), csv: c => c.expected },
+    { key: 'actual', label: 'Actual', num: true, render: c => esc(fmt(c, c.actual)), csv: c => c.actual },
+    { key: 'variance', label: 'Variance', num: true, render: c => '<span data-testid="recon-variance-' + c.id + '">' + esc(fmt(c, c.variance)) + '</span>', csv: c => c.variance },
+    DETAILS_COL,
+    { key: 'offending', label: 'Offending records', nosort: true, val: c => c.offending.join(' '), render: c => c.offending.slice(0, 6).map(x => reconLink(x, c.id)).join(', ') + (c.offending.length > 6 ? ' … +' + (c.offending.length - 6) : '') }] });
+  return layout(h, 'reports');
+}
+
+/* ---------- reconciliation "Details": which filters/dates to check ---------- */
+function monthLabel(m) { return MONTHS[+m.slice(5) - 1].slice(0, 3) + ' ' + m.slice(0, 4); }
+function mLink(rep, m) { return { t: monthLabel(m), h: '#/reports/' + rep + '?mode=month&month=' + (+m.slice(5)) + '&year=' + m.slice(0, 4) }; }
+function reconDetails(c) {
+  const full = us(DATA_START) + ' – ' + us(DATA_END); const months = fullMonths().concat([DATA_END.slice(0, 7)]);
+  const span = monthLabel(months[0]) + ' – ' + monthLabel(months[months.length - 1]);
+  const lm = fullMonths().slice(-1)[0];
+  let pre, items = [];
+  const off = c.offending;
+  switch (c.id) {
+    case 'R1': pre = off.length ? 'Filter Totals Summary and Settled Batches By Month:' : 'Checked By Month, ' + span + ' (Totals Summary vs Settled Batches).';
+      items = off.map(m => mLink('totals-summary', m)); break;
+    case 'R2': pre = 'Checked By Date Range ' + full + ' (Settled Batches vs ACH Deposit, Checking Deposit rows).'; break;
+    case 'R3': pre = off.length ? 'Filter Settled Batches and Search Transactions:' : 'Checked By Month, ' + span + ', and By Date Range ' + full + '.';
+      items = off.map(m => m === 'range' ? { t: 'By Date Range ' + full, h: '#/reports/search-transactions?mode=range&from=' + DATA_START + '&to=' + DATA_END } : mLink('settled-batches', m)); break;
+    case 'R4': pre = off.length ? 'Filter Daily Discount Calculator By Day:' : 'Checked By Month, ' + monthLabel(lm) + ' (DAILY TOTAL rows vs Settled Batches).';
+      items = off.map(d => ({ t: us(d), h: '#/reports/discount-calculator?mode=day&date=' + d })); break;
+    case 'R5': pre = off.length ? 'Filter ACH Deposit By Day and open "What is included" for:' : 'Checked every Checking Deposit, ' + full + '.';
+      items = off.map(id => { const a = D.ach.find(x => x.id === id); return { t: us(a.depositDate) + ' (' + id + ')', h: '#/reports/ach-deposit/included/' + id }; }); break;
+    case 'R6': pre = off.length ? 'Compare Dashboard → Business Overview with Totals Summary By Year:' : 'Checked By Year ' + YEARS.join(', ') + ' (Business Overview vs Totals Summary).';
+      items = off.map(y => ({ t: 'Year ' + y, h: '#/reports/totals-summary?mode=year&year=' + y })); break;
+    case 'R7': pre = off.length ? 'Open these statements and compare with Chargebacks By Month:' : 'Checked statements ' + monthLabel(fullMonths()[0]) + ' – ' + monthLabel(lm) + ' against Chargebacks By Month.';
+      items = off.map(m => ({ t: monthLabel(m), h: '#/reports/merchant-statements/' + m })); break;
+    case 'R8': pre = off.length ? 'Open the review/confirmation for:' : 'Checked ' + S.apps.filter(a => a.order).length + ' submitted equipment order(s).';
+      items = off.map(id => ({ t: id, h: '#/iso/' + id + '/confirmation' })); break;
+    case 'R10': pre = off.length ? 'Open these applications and compare the amount paid with the order total:' : 'Checked ' + S.apps.filter(a => a.order && a.order.lines.length).length + ' submitted equipment order(s) for full payment.';
+      items = off.map(id => ({ t: id, h: '#/iso/' + id + '/confirmation' })); break;
+    case 'R9': pre = off.length ? 'Filter Search Transactions and Settled Batches By Month:' : 'Checked By Month, ' + span + ' (Search Transactions vs Settled Batches).';
+      items = off.map(m => mLink('search-transactions', m)); break;
+  }
+  const shown = items.slice(0, 8);
+  return { text: pre + (items.length ? ' ' + items.map(i => i.t).join(', ') : ''),
+    html: esc(pre) + (shown.length ? ' ' + shown.map(i => '<a href="' + i.h + '">' + esc(i.t) + '</a>').join(', ') + (items.length > 8 ? ' … +' + (items.length - 8) : '') : '') };
+}
+const DETAILS_COL = { key: 'details', label: 'Details', nosort: true, val: c => reconDetails(c).text, render: c => '<span data-testid="recon-details-' + c.id + '">' + reconDetails(c).html + '</span>' };
+
+/* =====================================================================
+   Pages: dashboard, platforms, profile, users, password,
+   notifications, PCI, support, product info, offers
+   ===================================================================== */
+function pageNotFound() { return layout(head('Page not found') + '<div class="card empty" data-testid="not-found">This page does not exist. <a href="#/dashboard">Go to Dashboard</a>.</div>', ''); }
+
+function pageDashboard() {
+  const sel = UI.overviewSel; const o = overview(sel); const t = trend15();
+  const curMonth = MONTHS[+S.today.slice(5, 7) - 1] + ' ' + S.today.slice(0, 4);
+  let h = head('Dashboard');
+  if (!S.saqDone) h += '<div class="banner b-error" data-testid="saq-banner">Your PCI Self-Assessment Questionnaire (SAQ) is due. <a href="#/pci">Complete it now</a>.</div>';
+  // platforms
+  const vis = 5; const start = Math.min(UI.carousel, PLATFORMS.length - vis);
+  h += '<div class="dash"><div class="dl"><div class="card"><div class="ctitle">Platforms<span class="sp"></span><button class="arrow" data-action="car" data-d="-1" data-testid="platforms-prev"' + (start <= 0 ? ' disabled' : '') + '>←</button><button class="arrow" data-action="car" data-d="1" data-testid="platforms-next"' + (start >= PLATFORMS.length - vis ? ' disabled' : '') + '>→</button></div><div class="plats">' +
+    PLATFORMS.slice(start, start + vis).map(p => '<div class="plat" data-testid="platform-' + p.id + '"><div class="pname">' + esc(p.name) + '</div><div class="ptag">' + esc(p.tag) + '</div>' +
+      (p.active ? '<a class="pbtn on" href="#/platforms/' + p.id + '" data-testid="platform-view-' + p.id + '">View ' + esc(p.name) + '</a>' : '<a class="pbtn" href="#/platforms/' + p.id + '" data-testid="platform-learn-' + p.id + '">Learn More</a>') + '</div>').join('') + '</div></div>';
+  // trends
+  h += '<div class="card"><div class="ctitle">15 Days Trend Analysis</div><div class="trends" data-testid="trend-analysis">';
+  const tile = (k, label, val, series, empty) => '<div class="trend" data-testid="trend-' + k + '">' + (t.has ? '<div class="tv" data-testid="trend-' + k + '-value">' + val + '</div><div class="tl">' + label + '</div>' + spark(series) + '<div class="muted small">Last updated: ' + us(addDays(S.today, -1)) + '</div>'
+    : '<div class="tl">' + label + '</div><div class="nodata">' + ICON.rep + '<strong>' + empty + '</strong><span>No data in the last 15 days. Check back soon!</span></div>') + '</div>';
+  h += tile('transactions', 'Average Transactions', t.avgCount, t.per.map(x => x.count), 'No Transactions Found') + tile('ticket', 'Average Ticket', money(t.avgTicket), t.per.map(x => x.avg), 'No Ticket Found') +
+    tile('sales', 'Average Total Sales', money(t.avgSales), t.per.map(x => x.sales), 'No Sales Found') + tile('refunds', 'Average Refunds', money(t.avgRefunds), t.per.map(x => x.refunds), 'No Refunds Found');
+  h += '</div></div>';
+  // monthly chart
+  const lastM = []; for (let i = 5; i >= 0; i--) lastM.push(addDays(S.today.slice(0, 7) + '-15', -30 * i).slice(0, 7));
+  const ms = lastM.map(m => ({ m: m, v: D.batches.filter(b => b.closeDate.slice(0, 7) === m && b.closeDate < S.today).reduce((a, b) => a + b.amount, 0) }));
+  const mx = Math.max.apply(null, ms.map(x => x.v).concat([1]));
+  h += '<div class="card"><div class="ctitle">Monthly Sales</div> <svg class="bars" viewBox="0 0 600 150" data-testid="monthly-sales-chart">' + ms.map((x, i) => { const bh = Math.round(x.v / mx * 100);
+    return '<rect x="' + (14 + i * 100) + '" y="' + (115 - bh) + '" width="64" height="' + bh + '" rx="3" fill="#2f5bea"/><text x="' + (46 + i * 100) + '" y="' + (108 - bh) + '" text-anchor="middle" font-size="10" fill="#344054">' + money(x.v).replace(/\.\d\d$/, '') + '</text><text x="' + (46 + i * 100) + '" y="132" text-anchor="middle" font-size="11" fill="#667085">' + MONTHS[+x.m.slice(5) - 1].slice(0, 3) + ' ' + x.m.slice(0, 4) + '</text>'; }).join('') + '</svg></div></div>';
+  // overview
+  const it = (k, v, l) => '<div class="ov"><div class="ovv" data-testid="overview-' + k + '">' + v + '</div><div class="ovl">' + l + '</div></div>';
+  h += '<div class="dr"><div class="card"><div class="ctitle">Business Overview</div><div class="muted small">Sales data for <span data-testid="overview-label">' + (sel === 'all' ? 'all time' : sel === 'month' ? curMonth : sel) + '</span></div>' +
+    '<label class="sel">Date Selection<select data-change="overview" data-testid="overview-select"><option value="all"' + (sel === 'all' ? ' selected' : '') + '>All</option><option value="month"' + (sel === 'month' ? ' selected' : '') + '>' + curMonth + '</option><option value="2026"' + (sel === '2026' ? ' selected' : '') + '>2026</option><option value="2025"' + (sel === '2025' ? ' selected' : '') + '>2025</option></select></label>' +
+    it('batch-total', money(o.batchTotal), 'Batch Total') + it('count', o.count.toLocaleString('en-US'), 'Number of Transactions') + it('highest', money(o.highest), 'Highest Transaction') + it('lowest', money(o.lowest), 'Lowest Transaction') +
+    it('average', money(o.avg), 'Average Ticket') + it('busiest', o.busiest, 'Busiest Day of the Week') + it('chargebacks', money(o.chargebacks), 'Total Chargebacks') + '</div>' +
+    '<div class="card promo"><strong>GiftWave holiday cards</strong><span>Sell gift cards in store and online.</span><a href="#/platforms/giftwave">Learn more</a></div></div></div>';
+  return layout(h, 'dashboard');
+}
+
+function pagePlatform(id) {
+  const p = PLATFORMS.find(x => x.id === id); if (!p) return pageNotFound();
+  let h;
+  if (p.active && p.reports && p.reports.length) {
+    h = head(p.name + ' Reports', 'Dashboard /') + '<div class="cards4">' + p.reports.map((r, i) => '<div class="rcard" data-testid="platform-report-' + i + '"><div class="ric">' + ICON.rep + '</div><div class="rt">' + esc(r) + '</div><div class="rd">Pending</div><button class="lnk" data-action="platform-report" data-name="' + esc(r) + '" data-testid="platform-report-view-' + i + '">View Report</button></div>').join('') + '</div>';
+  } else if (p.active) {
+    h = head(p.name, 'Dashboard /') + '<div class="card"><p data-testid="platform-status">Your ' + esc(p.name) + ' service is <strong>active</strong>.</p><p class="muted">' + esc(p.tag) + '.</p><button class="btn btn-primary" data-action="platform-open" data-name="' + esc(p.name) + '" data-testid="platform-open">Open ' + esc(p.name) + '</button></div>';
+  } else {
+    const req = S.enroll && S.enroll[p.id];
+    h = head(p.name, 'Dashboard /') + '<div class="card"><h3>' + esc(p.name) + '</h3><p>' + esc(p.tag) + '. Works alongside your existing CorpEquip Pay account, with reporting in this portal.</p><ul class="ticks"><li>Set up in under a week</li><li>No change to your merchant account</li><li>Support from the same team</li></ul>' +
+      (req ? '<div class="banner b-ok" data-testid="enroll-submitted">Thanks! A specialist will contact you about ' + esc(p.name) + '.</div>' : '<button class="btn btn-primary" data-action="enroll" data-id="' + p.id + '" data-testid="enroll-btn">Yes, I would like to learn more and enroll!</button>') + '</div>';
+  }
+  return layout(h, 'dashboard');
+}
+
+function pageProfile() {
+  const p = S.profile; const f = (k, l, ro) => '<label>' + l + '<input name="' + k + '" value="' + esc(p[k]) + '"' + (ro ? ' readonly' : '') + ' data-testid="profile-' + k + '"></label>' + '<div class="ferr" data-testid="profile-' + k + '-error"></div>';
+  return layout(head('Profile Settings', 'Dashboard /', '<a class="btn btn-primary" href="#/change-password" data-testid="profile-change-password">Change Password</a>') +
+    '<div class="prof"><div class="card pcard"><div class="bigav">' + esc(p.first[0] + p.last[0]) + '</div><div class="pn" data-testid="profile-name">' + esc(p.first + ' ' + p.last) + '</div><span class="role">' + esc(p.role) + '</span><div class="muted small">' + esc(p.email) + '</div>' +
+    '<div class="muted small">' + esc(p.street + ', ' + p.city + ', ' + p.state + ' ' + p.zip) + '</div><div class="muted small">Active services:</div><div class="chips">' + PLATFORMS.filter(x => x.active).map(x => '<span class="chip">' + esc(x.name) + '</span>').join('') + '</div></div>' +
+    '<form class="card form2" data-form="profile">' + f('first', 'First Name') + f('last', 'Last Name') + f('email', 'Email Address', true) + f('phone', 'Phone Number') + f('street', 'Address') + f('city', 'City') + f('state', 'State') + f('zip', 'ZIP Code') +
+    '<div class="span2"><button class="btn btn-green" type="submit" data-testid="profile-save">Update Profile</button></div></form></div>' +
+    '<div class="card"><div class="ctitle">Management Hub</div><div class="hub"><a class="btn btn-primary" href="#/users" data-testid="hub-users">Users</a><a class="btn btn-primary" href="#/locations" data-testid="hub-locations">Locations</a><a class="btn btn-primary" href="#/banners" data-testid="hub-banners">Banners</a><a class="btn btn-primary" href="#/pci" data-testid="hub-pci">PCI Compliance</a></div></div>', '');
+}
+function pageUsers() {
+  return layout(head('User Management', 'Profile /') + '<div class="card">' + table({ id: 'users-table', title: 'Users', rows: S.users, key: u => u.id, cols: [
+    { key: 'name', label: 'Name' }, { key: 'email', label: 'Email' }, { key: 'role', label: 'Role' }, { key: 'status', label: 'Status', render: u => '<span class="badge b-' + (u.status === 'Active' ? 'ok' : u.status === 'Invited' ? 'warn' : 'muted') + '">' + u.status + '</span>' },
+    { key: 'act', label: '', nosort: true, nocsv: true, render: u => u.role === 'Owner' ? '' : '<button class="lnk" data-action="user-toggle" data-id="' + u.id + '" data-testid="user-toggle-' + u.id + '">' + (u.status === 'Inactive' ? 'Activate' : 'Deactivate') + '</button>' }] }) + '</div>' +
+    '<form class="card form3" data-form="add-user"><div class="ctitle span3">Add user</div><label>Full name<input name="name" data-testid="user-name"></label><label>Email<input name="email" data-testid="user-email"></label>' +
+    '<label>Role<select name="role" data-testid="user-role"><option>Manager</option><option>Viewer</option><option>Accountant</option></select></label><div class="ferr span3" data-testid="user-error"></div>' +
+    '<div class="span3"><button class="btn btn-primary" type="submit" data-testid="user-add">Send invite</button></div></form>', '');
+}
+function pagePassword() {
+  return layout(head('Change Password', 'Profile /') + '<form class="card narrow" data-form="password"><label>Current Password<input type="password" name="cur" data-testid="pw-current"></label>' +
+    '<label>New Password<input type="password" name="nw" data-testid="pw-new"></label><label>Confirm New Password<input type="password" name="cf" data-testid="pw-confirm"></label>' +
+    '<p class="muted small">At least 8 characters with a letter and a number.</p><div class="ferr" data-testid="pw-error"></div><button class="btn btn-primary btn-block" type="submit" data-testid="pw-submit">Change Password</button></form>', '');
+}
+function pageNotifications() {
+  return layout(head('Notifications', 'Dashboard /', '<button class="lnk" data-action="read-all" data-testid="notifications-read-all">Mark all as read</button>') +
+    '<div class="card msgs" data-testid="notifications-list">' + (S.notifications.length ? S.notifications.slice().reverse().map(n => '<a class="msg' + (n.read ? '' : ' unread') + '" href="' + esc(n.link || '#/notifications') + '" data-action="open-note" data-id="' + n.id + '" data-testid="notification-' + n.id + '">' + ICON.dl +
+      '<div><strong>' + esc(n.title) + '</strong><span>' + esc(n.sub) + '</span><em>' + us(n.date) + '</em></div></a>').join('') : '<div class="empty">No messages.</div>') + '</div>', '');
+}
+function pagePci() {
+  return layout(head('PCI Compliance', 'Profile /') + '<div class="card"><div class="kvt2"><span>Self-Assessment Questionnaire (SAQ)</span><span class="badge b-' + (S.saqDone ? 'ok' : 'error') + '" data-testid="pci-status">' + (S.saqDone ? 'Completed' : 'Due') + '</span></div>' +
+    (S.saqDone ? '<p class="muted">Thank you. Your SAQ is on file for this year.</p>' : '<p>Answer the annual questionnaire to keep your account compliant and avoid non-compliance fees.</p><label class="chk"><input type="checkbox" id="saq-ack" data-testid="pci-ack"> I confirm card data is never stored on paper or in spreadsheets.</label><button class="btn btn-primary" data-action="saq" data-testid="pci-complete">Complete SAQ</button><div class="ferr" data-testid="pci-error"></div>') + '</div>', '');
+}
+function pageSimple(title, body) { return layout(head(title, 'Profile /') + '<div class="card" data-testid="simple-page">' + body + '</div>', ''); }
+function pageSupport() {
+  const c = (k, t, b) => '<div class="card" data-testid="support-' + k + '"><div class="ctitle">' + t + '</div>' + b + '</div>';
+  return layout(head('Support', 'Dashboard /') + '<div class="grid2">' +
+    c('agent', 'Sales Agent Information', '<p>Company: Partner ISO Services<br>Phone: (555) 010-3000<br>Email: <a href="mailto:agent@partner-iso.test">agent@partner-iso.test</a></p>') +
+    c('merchant', 'Merchant Support', '<p>Phone: 1-800-555-0100, option 1<br>Hours: Mon–Fri 8:00 AM – 8:00 PM ET<br>Email: <a href="mailto:support@corpequip.test">support@corpequip.test</a></p>') +
+    c('technical', 'Technical Support', '<p>Phone: 1-800-555-0100, option 2<br>Hours: 24/7<br>Email: <a href="mailto:tech@corpequip.test">tech@corpequip.test</a></p>') +
+    c('chargebacks', 'Chargebacks & Disputes', '<p>Visa / Mastercard: 1-800-555-0100, option 3<br>Amex / Discover: 1-800-555-0100, option 4<br>Fax: (555) 010-3999</p>') + '</div>', 'support');
+}
+const FORMS = [['FAQ: Funding and deposits', 'Common questions about deposit timing and holds', '84 KB', '2025-10-01'], ['Account Maintenance Form', 'Change address, DBA name or contact details', '132 KB', '2025-09-15'],
+  ['Bank Account Change Form', 'Update the account your deposits go to', '96 KB', '2025-09-15'], ['Chargeback FAQ', 'How chargebacks work and how to respond', '210 KB', '2025-08-20'],
+  ['Merchant ACH Authorization Form', 'Authorize ACH debits for fees', '74 KB', '2025-07-02'], ['Equipment Return Form', 'Return or swap leased equipment', '68 KB', '2025-06-11']];
+function pageProductInfo(sub) {
+  if (sub === 'forms') return layout(head('Helpful Forms & Literature', 'Product Information /') + '<div class="card">' + table({ id: 'forms-table', title: 'Helpful Forms & Literature', rows: FORMS, key: f => f[0], cols: [
+    { key: 'name', label: 'File Name and Description', val: f => f[0], render: f => '<strong>' + esc(f[0]) + '</strong><div class="muted small">' + esc(f[1]) + '</div>' }, { key: 'size', label: 'File Size', val: f => f[2] }, { key: 'date', label: 'Upload Date', val: f => f[3], date: true },
+    { key: 'dl', label: '', nosort: true, nocsv: true, render: f => '<button class="lnk" data-action="form-dl" data-name="' + esc(f[0]) + '" data-testid="form-download-' + tid(f[0]) + '">Download</button>' }] }) + '</div>', 'product-info');
+  if (sub === 'help') return layout(head('Product Help', 'Product Information /') + '<div class="cards4">' + PLATFORMS.map(p => '<div class="rcard" data-testid="help-' + p.id + '"><div class="rt">' + esc(p.name) + '</div><div class="rd">' + esc(p.tag) + '</div><a class="lnk" href="#/platforms/' + p.id + '">View ' + esc(p.name) + '</a></div>').join('') + '</div>', 'product-info');
+  const t = (k, n, d, href, lbl) => '<div class="rcard" data-testid="product-' + k + '"><div class="ric">' + ICON.info + '</div><div class="rt">' + n + '</div><div class="rd">' + d + '</div><a class="lnk" href="' + href + '">' + lbl + '</a></div>';
+  return layout(head('Product Information', 'Dashboard /') + '<div class="cards4">' + t('help', 'Product Help', 'FAQs and other helpful information', '#/product-info/help', 'Get Help') + t('forms', 'Helpful Forms & Literature', 'Commonly requested forms and documents', '#/product-info/forms', 'Download Documents') +
+    t('blog', 'Payments Blog', 'Tips to help merchants save time and money', '#/product-info/blog', 'Read the Blog') + t('video', 'Video Channel', 'Product walkthroughs and announcements', '#/product-info/video', 'Visit our Video Library') + '</div>' +
+    (sub === 'blog' || sub === 'video' ? '<div class="card" data-testid="product-sub">' + (sub === 'blog' ? 'Latest post: 5 ways to cut card processing costs.' : 'Latest video: Reading your merchant statement.') + '</div>' : ''), 'product-info');
+}
+function pageOffers() { return layout(head('Special Offers!', 'Dashboard /') + '<div class="card" data-testid="offers-empty">Check back later for new offers.</div>', 'special-offers'); }
+
+/* =====================================================================
+   Partner Hub (ISO equipment ordering), QA console, router, events
+   ===================================================================== */
+function app(id) { return S.apps.find(a => a.id === id); }
+function pageIsoList() {
+  return layout(head('Merchant Applications', 'Partner Hub /') + '<div class="card">' + table({ id: 'apps-table', title: 'Merchant Applications', rows: S.apps, key: a => a.id, cols: [
+    { key: 'id', label: 'Application' }, { key: 'dba', label: 'DBA Name' }, { key: 'legal', label: 'Legal Name' },
+    { key: 'status', label: 'Status', render: a => '<span class="badge b-' + (a.status === 'Submitted' ? 'ok' : 'warn') + '" data-testid="app-status-' + a.id + '">' + a.status + '</span>' },
+    { key: 'total', label: 'Equipment Total', money: true, val: a => a.order ? a.order.total : 0 },
+    { key: 'act', label: '', nosort: true, nocsv: true, render: a => a.status === 'Submitted' ? '<a href="#/iso/' + a.id + '/confirmation" data-testid="app-view-' + a.id + '">View</a>' : '<a class="btn btn-primary btn-sm" href="#/iso/' + a.id + '" data-testid="app-add-equipment-' + a.id + '">Add Equipment</a>' }] }) + '</div>', 'iso');
+}
+function isoModal(a) {
+  const m = UI.modal; if (!m) return '';
+  const T = isoTotals(a);
+  const wrap = (title, body, foot, wide) => '<div class="overlay"><div class="modal' + (wide ? ' wide' : '') + '" data-testid="modal-' + m.split(':')[0] + '"><div class="mtitle">' + title + '</div>' + body + '<div class="mfoot">' + foot + '</div></div></div>';
+  if (m === 'options') {
+    const c = UI.isoChoice;
+    return wrap('Equipment Options', '<div class="choices"><button class="choice' + (c === 'select' ? ' on' : '') + '" data-action="iso-choice" data-v="select" data-testid="equip-option-select"><strong>Select Equipment for this Account</strong><span>Account requires equipment purchase and shipment from CorpEquip Pay.</span></button>' +
+      '<button class="choice' + (c === 'skip' ? ' on' : '') + '" data-action="iso-choice" data-v="skip" data-testid="equip-option-skip"><strong>Skip Equipment Selection</strong><span>Agent/ISO will provide equipment to the merchant and fill out a terminal setup form with the application.</span></button></div>',
+      '<button class="btn btn-primary" data-action="iso-options-continue" data-testid="equip-option-continue"' + (c ? '' : ' disabled') + '>Continue</button>');
+  }
+  if (m === 'skipConfirm') return wrap('You have items in your cart!', '<p>Empty cart and skip equipment?</p>', '<button class="btn" data-action="iso-keep" data-testid="skip-keep">No - Keep Selected Equipment</button><button class="btn btn-primary" data-action="iso-empty-skip" data-testid="skip-empty">Yes - Empty the Cart</button>');
+  if (m.indexOf('item:') === 0) {
+    const it = ISO_CATALOG.find(x => x.sku === m.slice(5)); const pr = isoPrice(a, it); const fixed = a.program === 'free' && it.cat === 'terminals';
+    return wrap(esc(it.name), '<div class="itm"><div><div class="muted small">Item Description</div><p data-testid="item-desc">' + esc(it.desc) + '</p><div class="ctitle">Pricing</div>' +
+      '<label>Price<input id="item-price" value="' + plain(pr) + '"' + (fixed ? ' readonly' : '') + ' data-testid="item-price"></label><label>Quantity<input id="item-qty" type="number" min="1" max="10" value="1" data-testid="item-qty"></label><div class="ferr" data-testid="item-error"></div></div><div class="itimg">' + (it.cat === 'terminals' ? ICON.term : it.cat === 'pos' ? ICON.pos : ICON.paper) + '</div></div>',
+      '<button class="btn" data-action="close-modal" data-testid="item-cancel">Cancel</button><button class="btn btn-primary" data-action="iso-add" data-sku="' + it.sku + '" data-testid="item-add">Add to Order</button>');
+  }
+  if (m === 'dest') {
+    const sel = UI.isoSel || (a.shipTo && a.shipTo.type);
+    const card = (k, t, txt) => '<button class="choice sm' + (sel === k ? ' on' : '') + '" data-action="iso-dest" data-v="' + k + '" data-testid="ship-dest-' + k + '"><strong>' + t + '</strong><span>' + esc(txt) + '</span></button>';
+    const custom = a.customAddr ? a.customAddr : 'Input a custom address for your hardware delivery.';
+    return wrap('Select Shipping Destination', '<div class="choices four">' + card('dba', 'Ship to DBA Address', a.dba + ', ' + a.addr) + card('legal', 'Ship to Legal Address', a.legal + ', ' + a.legalAddr) + card('custom', 'Ship to Custom Address', custom) + card('iso', 'Ship to ISO', ISO_ADDR) + '</div>',
+      '<button class="btn" data-action="close-modal" data-testid="ship-dest-close">Close</button><button class="btn btn-primary" data-action="iso-dest-next" data-testid="ship-dest-next"' + (sel && (sel !== 'custom' || a.customAddr) ? '' : ' disabled') + '>Proceed to Shipping Method</button>', true);
+  }
+  if (m === 'custom') return wrap('Ship to Custom Address', '<div class="form2"><label>Street Address<input id="ca-street" data-testid="custom-street"></label><label>Suite #<input id="ca-suite" data-testid="custom-suite"></label><label>City *<input id="ca-city" data-testid="custom-city"></label>' +
+    '<label>State *<input id="ca-state" maxlength="2" data-testid="custom-state"></label><label>Zip Code *<input id="ca-zip" data-testid="custom-zip"></label></div><div class="ferr" data-testid="custom-error"></div>',
+    '<button class="btn" data-action="iso-custom-close" data-testid="custom-close">Close</button><button class="btn btn-primary" data-action="iso-custom-save" data-testid="custom-save">Save Custom Address</button>');
+  if (m === 'method') {
+    const sel = UI.isoSel || a.shipMethod;
+    return wrap('Select Shipping Method', '<div class="choices three">' + SHIP_METHODS.map(s => '<button class="choice sm' + (sel === s[0] ? ' on' : '') + '" data-action="iso-method" data-v="' + s[0] + '" data-testid="ship-method-' + s[0] + '"><strong>' + s[1] + '</strong><span class="big">' + money(s[2]) + '</span></button>').join('') + '</div>',
+      '<button class="btn" data-action="close-modal" data-testid="ship-method-close">Close</button><button class="btn btn-primary" data-action="iso-method-next" data-testid="ship-method-next"' + (sel ? '' : ' disabled') + '>Proceed to Payment</button>');
+  }
+  if (m === 'payment') {
+    const pm = UI.payMethod;
+    let body = '<div class="ctitle">Select Payment Method</div><div class="paybtns"><button class="pay' + (pm === 'merchant' ? ' on' : '') + '" data-action="iso-pay" data-v="merchant" data-testid="pay-bill-merchant">Bill Merchant</button><button class="pay' + (pm === 'iso' ? ' on' : '') + '" data-action="iso-pay" data-v="iso" data-testid="pay-bill-iso">Bill ISO</button>' +
+      '<button class="pay wide' + (pm === 'card' ? ' on' : '') + '" data-action="iso-pay" data-v="card" data-testid="pay-credit-card"' + (T.total > 0 ? '' : ' disabled') + '>Credit Card</button></div>';
+    if (pm === 'card') body += '<div class="ctitle">Enter Credit Card Information</div><div class="form2"><label>Cardholder First Name *<input id="cc-first" data-testid="cc-first"></label><label>Cardholder Last Name *<input id="cc-last" data-testid="cc-last"></label>' +
+      '<label>Credit Card Number *<input id="cc-number" data-testid="cc-number"></label><div class="row2"><label>Expiration Date *<input id="cc-exp" placeholder="MM/YY" data-testid="cc-exp"></label><label>Security Code *<input id="cc-cvv" data-testid="cc-cvv"></label></div></div>' +
+      '<div class="ctitle">Credit Card Billing Information</div><div class="form2"><label>Street Address *<input id="cc-street" data-testid="cc-street"></label><label>City *<input id="cc-city" data-testid="cc-city"></label><label>State *<input id="cc-state" maxlength="2" data-testid="cc-state"></label><label>Zip Code *<input id="cc-zip" data-testid="cc-zip"></label></div>';
+    body += '<div class="sumbox"><div><span>Subtotal</span><span data-testid="pay-subtotal">' + money(T.sub) + '</span></div><div><span>Shipping and Handling</span><span data-testid="pay-shipping">' + money(T.ship) + '</span></div><div class="tot"><span>Total</span><span data-testid="pay-total">' + money(T.total) + '</span></div></div><div class="ferr" data-testid="pay-error"></div>';
+    return wrap('Select Payment Details', body, '<button class="btn" data-action="close-modal" data-testid="pay-close">Close</button><button class="btn btn-primary" data-action="iso-pay-next" data-testid="pay-next"' + (pm ? '' : ' disabled') + '>' + (pm === 'card' ? 'Authorize Payment for ' + money(T.total) : 'Proceed To Review') + '</button>', true);
+  }
+  return '';
+}
+function pageIsoEquip(id) {
+  const a = app(id); if (!a) return pageNotFound();
+  if (a.status === 'Submitted') { location.replace('#/iso/' + id + '/confirmation'); return ''; }
+  if (a.equip === null && !UI.modal) { UI.modal = 'options'; UI.isoChoice = null; }
+  const T = isoTotals(a);
+  const rows = ISO_CATALOG.filter(x => x.cat === UI.isoTab && (!UI.isoSearch || x.name.toLowerCase().indexOf(UI.isoSearch.toLowerCase()) !== -1));
+  let h = head('New Merchant Application for ' + a.dba, 'Partner Hub / ' + a.id + ' /');
+  h += '<div class="isogrid"><div class="card"><div class="tabs">' + ISO_CATS.map(c => '<button class="tab' + (UI.isoTab === c[0] ? ' on' : '') + '" data-action="iso-tab" data-v="' + c[0] + '" data-testid="equip-tab-' + c[0] + '">' + c[1] + '</button>').join('') + '</div>' +
+    '<div class="row2 mb"><label>Program<select data-change="iso-program" data-testid="equip-program"><option value="free"' + (a.program === 'free' ? ' selected' : '') + '>Free Terminal Program</option><option value="purchase"' + (a.program === 'purchase' ? ' selected' : '') + '>Purchase Program</option></select></label>' +
+    '<label>Search<input data-change="iso-search" value="' + esc(UI.isoSearch) + '" placeholder="Search Equipment Name" data-testid="equip-search"></label></div>' +
+    table({ id: 'equip-table', title: 'Equipment', rows: rows, key: x => x.sku, empty: 'No equipment matches your search.', cols: [
+      { key: 'img', label: 'Image', nosort: true, nocsv: true, render: x => '<span class="thumb">' + (x.cat === 'terminals' ? ICON.term : x.cat === 'pos' ? ICON.pos : ICON.paper) + '</span>' },
+      { key: 'name', label: 'Equipment Name', render: x => '<button class="lnk" data-action="iso-item" data-sku="' + x.sku + '" data-testid="equip-item-' + x.sku + '">' + esc(x.name) + '</button>' },
+      { key: 'comm', label: 'Comm Types' }, { key: 'price', label: 'Merchant Price', money: true }] }) + '</div>';
+  h += '<div class="card"><div class="ctitle">Order Summary</div><table class="mini" data-testid="order-summary"><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Total</th><th></th></tr></thead><tbody>' +
+    (a.cart.length ? a.cart.map(l => '<tr data-testid="cart-line-' + l.sku + '"><td>' + esc(l.name) + '</td><td class="num">' + l.qty + '</td><td class="num">' + money(l.price) + '</td><td class="num">' + money(l.price * l.qty) + '</td><td><button class="del" data-action="iso-del" data-sku="' + l.sku + '" data-testid="cart-remove-' + l.sku + '">✕</button></td></tr>').join('') : '<tr><td colspan="5" class="emptycart" data-testid="cart-empty">Your Cart is Empty</td></tr>') +
+    '</tbody></table><div class="sumbox"><div><span>Subtotal</span><span data-testid="summary-subtotal">' + money(T.sub) + '</span></div><div><span>Shipping and Handling</span><span data-testid="summary-shipping">' + money(T.ship) + '</span></div><div class="tot"><span>Total</span><span data-testid="summary-total">' + money(T.total) + '</span></div></div>' +
+    '<div class="btnrow"><button class="btn" data-action="iso-reopen" data-testid="equip-options-open">Equipment Options</button><button class="btn" data-action="iso-edit" data-testid="edit-application">Edit Application</button>' +
+    (a.payment && paymentValid(a) ? '<a class="btn btn-primary" href="#/iso/' + a.id + '/review" data-testid="continue-review-btn">Continue to Review</a>'
+      : a.payment ? '<button class="btn btn-primary" data-action="iso-repay" data-testid="repay-btn"' + (a.cart.length ? '' : ' disabled') + '>Proceed to Payment</button>'
+      : '<button class="btn btn-primary" data-action="iso-shipping" data-testid="shipping-btn"' + (a.cart.length ? '' : ' disabled') + '>Shipping</button>') + '</div></div></div>';
+  if (a.payment && !paymentValid(a)) h = h.replace('<div class="isogrid">', '<div class="banner b-error" data-testid="payment-stale-banner">You changed the equipment after paying ' + money(a.payment.amount) + '. Pay for the updated order (' + money(T.total) + ') before submitting.</div><div class="isogrid">');
+  return layout(h + isoModal(a), 'iso');
+}
+function shipText(a) {
+  if (!a.shipTo) return '—';
+  return { dba: 'DBA address: ' + a.addr, legal: 'Legal address: ' + a.legalAddr, custom: 'Custom: ' + (a.customAddr || ''), iso: 'ISO: ' + ISO_ADDR }[a.shipTo.type];
+}
+function pageIsoReview(id) {
+  const a = app(id); if (!a) return pageNotFound();
+  if (a.equip === null) { location.replace('#/iso/' + id); return ''; }
+  const T = isoTotals(a); const sm = SHIP_METHODS.find(s => s[0] === a.shipMethod);
+  let h = head('New Merchant Application for ' + a.dba, 'Partner Hub / ' + a.id + ' / Review');
+  if (UI.reviewError) h += '<div class="banner b-error" data-testid="review-error">' + esc(UI.reviewError) + '</div>';
+  h += '<div class="card"><div class="ctitle">Merchant DBA Information</div><div class="grid2"><div data-testid="review-dba"><div class="muted small">DBA Information</div>' + esc(a.dba) + '<br>' + esc(a.addr) + '<br>' + esc(a.phone) + '<br>' + esc(a.email) + '</div>' +
+    '<div data-testid="review-legal"><div class="muted small">Legal Information</div>' + esc(a.legal) + '<br>' + esc(a.legalAddr) + '</div></div></div>';
+  if (a.equip === 'skipped') h += '<div class="card" data-testid="review-equipment-skipped">Equipment selection skipped — the agent/ISO will provide equipment and a terminal setup form.</div>';
+  else h += '<div class="card"><div class="ctitle">Equipment</div><table class="mini" data-testid="review-equipment"><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Total</th></tr></thead><tbody>' +
+    a.cart.map(l => '<tr><td>' + esc(l.name) + '</td><td class="num">' + l.qty + '</td><td class="num">' + money(l.price) + '</td><td class="num">' + money(l.price * l.qty) + '</td></tr>').join('') + '</tbody></table>' +
+    '<div class="grid2 mt"><div><div class="muted small">Shipping Destination</div><span data-testid="review-ship-to">' + esc(shipText(a)) + '</span></div><div><div class="muted small">Shipping Method</div><span data-testid="review-ship-method">' + (sm ? sm[1] + ' (' + money(sm[2]) + ')' : '—') + '</span></div>' +
+    '<div><div class="muted small">Payment</div><span data-testid="review-payment">' + esc(a.payment ? a.payment.label : '—') + '</span>' +
+      (a.payment && !paymentValid(a) ? '<div class="ferr" data-testid="review-payment-stale">Not paid for the current order — <a href="#/iso/' + a.id + '">go back and pay</a>.</div>' : '') + '</div></div>' +
+    '<div class="sumbox"><div><span>Subtotal</span><span data-testid="review-subtotal">' + money(T.sub) + '</span></div><div><span>Shipping and Handling</span><span data-testid="review-shipping">' + money(T.ship) + '</span></div><div class="tot"><span>Total</span><span data-testid="review-total">' + money(T.reviewTotal) + '</span></div></div></div>';
+  h += '<div class="btnrow end"><a class="btn" href="#/iso/' + id + '" data-testid="review-edit">Edit Application</a><button class="btn btn-primary" data-action="iso-submit" data-id="' + id + '" data-testid="submit-application">Submit Application</button></div>';
+  return layout(h, 'iso');
+}
+function pageIsoConfirm(id) {
+  const a = app(id); if (!a || a.status !== 'Submitted') return pageNotFound();
+  return layout('<div class="confirm" data-testid="confirmation"><div class="cbanner"><div class="check">✓</div><div data-testid="confirmation-status">Submitted</div></div><div class="card">' +
+    '<div class="ctitle">Application Successfully Completed!</div><p>Congratulations, application <strong data-testid="confirmation-app-id">' + a.id + '</strong> for ' + esc(a.dba) + ' is pending approval. Please contact your representative for further status updates.</p>' +
+    '<p>Once the account is set up and ready for processing, the merchant will receive a welcome letter with important information.</p>' +
+    '<div class="ctitle">Representative Details</div><p>Jordan Blake<br><a href="mailto:jordan.blake@partner-iso.test">jordan.blake@partner-iso.test</a></p>' +
+    '<div class="ctitle">Information Regarding Equipment Purchase</div><p>Order total: <strong data-testid="confirmation-total">' + money(a.order.total) + '</strong> Amount paid: <strong data-testid="confirmation-paid">' + money(a.order.paid || 0) + '</strong>. The merchant may see a nominal authorization charge today; the full amount is not charged until the account is activated.</p>' +
+    '<a class="btn btn-primary" href="#/iso" data-testid="back-to-applications">Back to applications</a></div></div>', 'iso');
+}
+
+/* ---------- QA console ---------- */
+// which bugs each requirement (reconciliation check) reproduces
+const CHECK_BUGS = { R1: ['BUG-01'], R2: [], R3: ['BUG-02', 'BUG-13'], R4: ['BUG-07'], R5: ['BUG-08'], R6: ['BUG-01'], R7: [], R8: ['BUG-10'], R9: ['BUG-14'], R10: ['BUG-15'] };
+const BUG_HINT = { 'BUG-10': 'needs a submitted equipment order', 'BUG-15': 'needs an order edited after payment, then submitted' };
+const SCREEN_BUGS = ['BUG-03', 'BUG-04', 'BUG-05', 'BUG-06', 'BUG-09', 'BUG-11', 'BUG-12'];
+function bugChip(id, failing, testid) {
+  const on = bug(id); const st = !on ? 'off' : failing ? 'reproduced' : 'on, not triggered yet' + (BUG_HINT[id] ? ' (' + BUG_HINT[id] + ')' : '');
+  return '<span class="bchip ' + (!on ? 'b-off' : failing ? 'b-rep' : 'b-wait') + '" data-testid="' + testid + '" data-state="' + (!on ? 'off' : failing ? 'reproduced' : 'pending') + '">' + id + ' · ' + st + '</span>';
+}
+const BUGS_COL = { key: 'bugs', label: 'Bugs reproduced', nosort: true,
+  val: c => CHECK_BUGS[c.id].map(id => id + (bug(id) ? (c.status === 'FAIL' ? ' reproduced' : ' on') : ' off')).join('; ') || 'none (data integrity)',
+  render: c => '<div class="bchips" data-testid="recon-bugs-' + c.id + '">' + (CHECK_BUGS[c.id].length ? CHECK_BUGS[c.id].map(id => bugChip(id, c.status === 'FAIL', 'recon-bug-' + c.id + '-' + id)).join('') : '<span class="muted small">No linked bug (data-integrity check)</span>') + '</div>' };
+function screenBugsBox() {
+  return '<div class="screenbugs" data-testid="screen-bugs"><strong>Bugs not covered by R1–R9</strong> <span class="muted small">(they change one screen only, so test them on that screen; see the answer key)</span><div class="bchips">' +
+    SCREEN_BUGS.map(id => '<span class="bchip ' + (bug(id) ? 'b-wait' : 'b-off') + '" data-testid="screen-bug-' + id + '">' + id + ' · ' + (bug(id) ? 'on' : 'off') + '</span>').join('') + '</div></div>';
+}
+function pageQa() {
+  const r = UI.lastRecon || runRecon(); UI.lastRecon = null;
+  let h = head('QA Console', '') + '<div class="grid2"><div class="card"><div class="ctitle">Defect flags <span class="muted small" data-testid="qa-active-count">(' + S.bugs.length + ' active)</span></div><div class="bugs">' +
+    BUG_IDS.map(id => '<label class="chk"><input type="checkbox" data-change="qa-bug" data-bug="' + id + '" data-testid="qa-bug-' + id + '"' + (S.bugs.indexOf(id) !== -1 ? ' checked' : '') + '> ' + id + '</label>').join('') + '</div>' +
+    '<div class="btnrow"><button class="btn btn-sm" data-action="qa-bugs" data-v="all" data-testid="qa-bugs-all">All on</button><button class="btn btn-sm" data-action="qa-bugs" data-v="none" data-testid="qa-bugs-none">All off</button></div></div>' +
+    '<div class="card"><div class="ctitle">Data</div><div class="form2"><label>Seed<input id="qa-seed" value="' + S.seed + '" data-testid="qa-seed"></label><label>Today (business date)<input id="qa-today" type="date" value="' + S.today + '" data-testid="qa-today"></label></div>' +
+    '<div class="btnrow"><button class="btn" data-action="qa-today" data-testid="qa-today-set">Set date</button><button class="btn btn-red" data-action="qa-reset" data-testid="qa-reset">Reset all data</button></div>' +
+    '<p class="muted small">Data covers ' + us(DATA_START) + ' – ' + us(DATA_END) + '. Reset clears profile, users, notifications and applications; bug flags are kept.</p></div></div>';
+  h += '<div class="card"><div class="ctitle">Reconciliation <span class="sp"></span><button class="btn btn-primary btn-sm" data-action="qa-recon" data-testid="qa-run-recon">Run checks</button></div>' +
+    '<div class="banner b-' + (r.allPassed ? 'ok' : 'error') + '" data-testid="qa-recon-overall" data-status="' + (r.allPassed ? 'PASS' : 'FAIL') + '">' + (r.allPassed ? 'All ' + r.checks.length + ' checks passed' : r.failed + ' of ' + r.checks.length + ' checks failed') + '</div>' +
+    table({ id: 'recon-table', title: 'Reconciliation', rows: r.checks, key: c => c.id, cols: [{ key: 'id', label: 'Check' }, { key: 'name', label: 'Description' },
+      { key: 'status', label: 'Result', render: c => '<span class="badge b-' + (c.status === 'PASS' ? 'ok' : 'error') + '" data-testid="recon-status-' + c.id + '">' + c.status + '</span>' },
+      { key: 'expected', label: 'Expected', num: true }, { key: 'actual', label: 'Actual', num: true }, { key: 'variance', label: 'Variance', num: true }, { key: 'offending', label: 'Offending', val: c => c.offending.slice(0, 6).join(', ') }, BUGS_COL, DETAILS_COL] }) + screenBugsBox() + '</div>';
+  h += '<div class="card"><div class="ctitle">window.QA</div><pre>QA.reset(seed?) · QA.getState() · QA.setBugs(["BUG-01"] | "all" | "none") · QA.getActiveBugs()\nQA.runReconciliation() · QA.exportCsv(tableId) · QA.setToday("2026-11-16")\nURL: ?bugs=none|all|BUG-01,BUG-07  ?seed=1001  ?today=2026-11-16</pre></div>';
+  return layout(h, 'qa');
+}
+
+/* ---------- router ---------- */
+function render() {
+  const r = parseHash(); const p = r.parts; let html;
+  if (p[0] === 'login') { location.replace('#/dashboard'); return; }
+  try {
+    if (p[0] === 'dashboard' || !p[0]) html = pageDashboard();
+    else if (p[0] === 'platforms') html = pagePlatform(p[1]);
+    else if (p[0] === 'reports' && !p[1]) html = pageReportsHub();
+    else if (p[0] === 'reports' && p[1] === 'reconciliation') html = pageReconReport();
+    else if (p[0] === 'reports' && p[1] === 'merchant-statements' && p[2]) html = pageStatement(p[2]);
+    else if (p[0] === 'reports' && p[1] === 'ach-deposit' && p[2] === 'included') html = pageAchIncluded(p[3]);
+    else if (p[0] === 'reports') html = pageReport(p[1], r.q);
+    else if (p[0] === 'pdf') html = pagePdf(p[1], r.q);
+    else if (p[0] === 'profile') html = pageProfile();
+    else if (p[0] === 'users') html = pageUsers();
+    else if (p[0] === 'change-password') html = pagePassword();
+    else if (p[0] === 'notifications') html = pageNotifications();
+    else if (p[0] === 'pci') html = pagePci();
+    else if (p[0] === 'locations') html = pageSimple('Locations', '<table class="mini" data-testid="locations-table"><thead><tr><th>Location</th><th>Address</th><th>MID</th></tr></thead><tbody><tr><td>' + esc(MERCHANT.dba) + '</td><td>' + esc(MERCHANT.street + ', ' + MERCHANT.city + ', ' + MERCHANT.state) + '</td><td>' + MERCHANT.mid + '</td></tr></tbody></table>');
+    else if (p[0] === 'banners') html = pageSimple('Banners', '<p data-testid="banners-empty">No banners are configured for your locations.</p>');
+    else if (p[0] === 'support') html = pageSupport();
+    else if (p[0] === 'product-info') html = pageProductInfo(p[1]);
+    else if (p[0] === 'special-offers') html = pageOffers();
+    else if (p[0] === 'iso' && !p[1]) html = pageIsoList();
+    else if (p[0] === 'iso' && p[2] === 'review') html = pageIsoReview(p[1]);
+    else if (p[0] === 'iso' && p[2] === 'confirmation') html = pageIsoConfirm(p[1]);
+    else if (p[0] === 'iso') html = pageIsoEquip(p[1]);
+    else if (p[0] === 'qa') html = pageQa();
+    else html = pageNotFound();
+  } catch (e) { html = '<div class="banner b-error" data-testid="render-error">Unable to display this page.</div>'; setTimeout(() => { throw e; }); }
+  if (html === '') return;
+  $('#root').innerHTML = html;
+  $('#root').setAttribute('data-route', r.path);
+  saveState();
+}
+
+/* ---------- actions ---------- */
+function addNote(title, sub, link) { S.counters.n++; S.notifications.push({ id: 'N-' + S.counters.n, title: title, sub: sub, date: S.today, read: false, link: link }); }
+function formVals(f) { const o = {}; new FormData(f).forEach((v, k) => { o[k] = String(v).trim(); }); return o; }
+function setErr(sel, msg) { const el = $('[data-testid="' + sel + '"]'); if (el) el.textContent = msg || ''; }
+function luhn(n) { let s = 0, alt = false; for (let i = n.length - 1; i >= 0; i--) { let d = +n[i]; if (alt) { d *= 2; if (d > 9) d -= 9; } s += d; alt = !alt; } return s % 10 === 0; }
+
+function onClick(e) {
+  const el = e.target.closest('[data-action]');
+  if (UI.menu && !(el && el.getAttribute('data-action') === 'menu') && !e.target.closest('.menu')) { UI.menu = false; render(); }
+  if (!el || el.disabled) return;
+  const a = el.getAttribute('data-action'), d = el.dataset;
+  const ap = app(parseHash().parts[1]);
+  switch (a) {
+    case 'menu': UI.menu = !UI.menu; render(); break;
+    case 'sort': { const st = UI.tables[d.table]; if (st.sort === d.key) st.dir = st.dir === 'asc' ? 'desc' : 'asc'; else { st.sort = d.key; st.dir = 'asc'; } st.page = 1; render(); break; }
+    case 'page': UI.tables[d.table].page = Math.max(1, +d.page); render(); break;
+    case 'car': UI.carousel = Math.max(0, Math.min(PLATFORMS.length - 5, UI.carousel + (+d.d))); render(); break;
+    case 'platform-report': toast('info', d.name + ' is being prepared. You will be notified when it is ready.'); break;
+    case 'platform-open': toast('info', 'Opening ' + d.name + ' in a new window is disabled in this demo.'); break;
+    case 'enroll': { S.enroll = S.enroll || {}; S.enroll[d.id] = true; const p = PLATFORMS.find(x => x.id === d.id); addNote('Enrollment request: ' + p.name, 'A specialist will contact you shortly.', '#/platforms/' + d.id); toast('success', 'Request submitted.'); render(); break; }
+    case 'pdf': {
+      const q = defaultQ(d.report, parseHash().q);
+      if (d.report === 'merchant-statements') { toast('info', 'Open a statement to download it as PDF.'); break; }
+      const R = REPORTS[d.report]; const n = R.run(q).rows.length;
+      if (d.report === 'search-transactions' && n > 500) { addNote('Offline Download : Search Transactions Report PDF download link', 'Search Transactions Report - PDF for ' + R.run(q).p.label, '#/pdf/search-transactions?' + qs(q)); toast('info', 'Large report: it is being prepared offline. Check Notifications for the download link.'); render(); }
+      else location.hash = '#/pdf/' + d.report + '?' + qs(q);
+      break;
+    }
+    case 'excel': case 'excel-table': { const id = a === 'excel' ? 'report-table' : d.table; const csv = tableCsv(id); if (csv) { download(tid(TABLES[id].title) + '.csv', csv); toast('success', 'Excel file downloaded (' + TABLES[id].rows.length + ' rows).'); } break; }
+    case 'back': history.back(); break;
+    case 'print': window.print(); break;
+    case 'read-all': S.notifications.forEach(n => { n.read = true; }); render(); toast('success', 'All messages marked as read.'); break;
+    case 'open-note': { const n = S.notifications.find(x => x.id === d.id); if (n) n.read = true; saveState(); break; }
+    case 'saq': if (!$('#saq-ack').checked) { setErr('pci-error', 'Please confirm the statement to continue.'); break; } S.saqDone = true; toast('success', 'SAQ completed.'); render(); break;
+    case 'user-toggle': { const u = S.users.find(x => x.id === d.id); u.status = u.status === 'Inactive' ? 'Active' : 'Inactive'; toast('success', u.name + ' is now ' + u.status.toLowerCase() + '.'); render(); break; }
+    case 'form-dl': download(d.name.replace(/[^A-Za-z0-9]+/g, '-') + '.txt', d.name + '\r\nSample document for the CorpEquip Pay demo.\r\n', 'text/plain'); toast('success', 'Downloading ' + d.name + '.'); break;
+    // ISO
+    case 'iso-tab': UI.isoTab = d.v; render(); break;
+    case 'iso-item': UI.modal = 'item:' + d.sku; render(); break;
+    case 'close-modal': UI.modal = null; UI.isoSel = null; render(); break;
+    case 'iso-choice': UI.isoChoice = d.v; render(); break;
+    case 'iso-reopen': UI.modal = 'options'; UI.isoChoice = null; render(); break;
+    case 'iso-options-continue':
+      if (UI.isoChoice === 'select') { ap.equip = 'select'; UI.modal = null; render(); }
+      else if (ap.cart.length) { UI.modal = 'skipConfirm'; render(); }
+      else { ap.equip = 'skipped'; ap.shipTo = null; ap.shipMethod = null; ap.payment = null; UI.modal = null; saveState(); location.hash = '#/iso/' + ap.id + '/review'; }
+      break;
+    case 'iso-keep': if (bug('BUG-11')) ap.cart = []; ap.equip = 'select'; UI.modal = null; render(); break;
+    case 'iso-empty-skip': ap.cart = []; ap.equip = 'skipped'; ap.shipTo = null; ap.shipMethod = null; ap.payment = null; UI.modal = null; saveState(); location.hash = '#/iso/' + ap.id + '/review'; break;
+    case 'iso-add': {
+      const it = ISO_CATALOG.find(x => x.sku === d.sku); const price = Math.round(parseFloat($('#item-price').value) * 100); const qty = parseInt($('#item-qty').value, 10);
+      if (isNaN(price) || price < 0 || price > 999999) { setErr('item-error', 'Enter a valid price.'); break; }
+      if (!(qty >= 1 && qty <= 10)) { setErr('item-error', 'Quantity must be between 1 and 10.'); break; }
+      const fixed = isoPrice(ap, it); const usePrice = (ap.program === 'free' && it.cat === 'terminals') ? fixed : price;
+      const ex = ap.cart.find(l => l.sku === it.sku); if (ex) { ex.qty = Math.min(10, ex.qty + qty); ex.price = usePrice; } else ap.cart.push({ sku: it.sku, name: it.name, qty: qty, price: usePrice });
+      ap.equip = 'select'; UI.modal = null; toast('success', it.name + ' added to order.'); render(); break;
+    }
+    case 'iso-del': ap.cart = ap.cart.filter(l => l.sku !== d.sku); render(); break;
+    case 'iso-edit': toast('info', 'Editing the merchant application is not part of this demo.'); break;
+    case 'iso-shipping': UI.modal = 'dest'; UI.isoSel = null; render(); break;
+    case 'iso-repay': UI.payMethod = null; UI.modal = 'payment'; render(); break;
+    case 'iso-dest': UI.isoSel = d.v; if (d.v === 'custom') UI.modal = 'custom'; render(); break;
+    case 'iso-custom-close': UI.modal = 'dest'; render(); break;
+    case 'iso-custom-save': {
+      const v = { street: $('#ca-street').value.trim(), suite: $('#ca-suite').value.trim(), city: $('#ca-city').value.trim(), state: $('#ca-state').value.trim().toUpperCase(), zip: $('#ca-zip').value.trim() };
+      if (!v.street || !v.city || !/^[A-Z]{2}$/.test(v.state) || !/^\d{5}$/.test(v.zip)) { setErr('custom-error', 'Enter a street, city, 2-letter state and 5-digit ZIP code.'); break; }
+      ap.customAddr = v.street + (v.suite ? ' #' + v.suite : '') + ', ' + v.city + ', ' + v.state + ' ' + v.zip; UI.isoSel = 'custom'; UI.modal = 'dest'; render(); break;
+    }
+    case 'iso-dest-next': ap.shipTo = { type: UI.isoSel || ap.shipTo.type }; UI.isoSel = null; UI.modal = 'method'; render(); break;
+    case 'iso-method': UI.isoSel = d.v; render(); break;
+    case 'iso-method-next': ap.shipMethod = UI.isoSel || ap.shipMethod; UI.isoSel = null; UI.payMethod = null; UI.modal = 'payment'; render(); break;
+    case 'iso-pay': UI.payMethod = d.v; render(); break;
+    case 'iso-pay-next': {
+      if (UI.payMethod === 'card') {
+        const g = id => $('#' + id).value.trim(); const num = g('cc-number').replace(/\s/g, ''); const m = /^(\d{2})\/(\d{2})$/.exec(g('cc-exp'));
+        let err = '';
+        if (!g('cc-first') || !g('cc-last')) err = 'Cardholder first and last name are required.';
+        else if (!/^\d{13,19}$/.test(num) || !luhn(num)) err = 'Enter a valid card number.';
+        else if (!m || +m[1] < 1 || +m[1] > 12 || (2000 + +m[2]) * 100 + +m[1] < +S.today.slice(0, 4) * 100 + +S.today.slice(5, 7)) err = 'Enter a valid, unexpired expiration date (MM/YY).';
+        else if (!/^\d{3,4}$/.test(g('cc-cvv'))) err = 'Enter a valid security code.';
+        else if (!g('cc-street') || !g('cc-city') || !/^[A-Za-z]{2}$/.test(g('cc-state')) || !/^\d{5}$/.test(g('cc-zip'))) err = 'Complete the billing address.';
+        if (err) { setErr('pay-error', err); break; }
+        ap.payment = { method: 'card', label: 'Credit card ••••' + num.slice(-4) + ' (authorized ' + money(isoTotals(ap).total) + ')' };
+      } else ap.payment = { method: UI.payMethod, label: (UI.payMethod === 'merchant' ? 'Bill Merchant' : 'Bill ISO') + ' (' + money(isoTotals(ap).total) + ')' };
+      ap.payment.amount = isoTotals(ap).total; ap.payment.sig = orderSig(ap);
+      UI.modal = null; saveState(); location.hash = '#/iso/' + ap.id + '/review'; break;
+    }
+    case 'iso-submit': {
+      const x = app(d.id); UI.reviewError = '';
+      if (x.equip === 'select' && (!x.cart.length || !x.shipTo || !x.shipMethod || !x.payment)) { UI.reviewError = 'Complete equipment, shipping destination, shipping method and payment before submitting.'; render(); break; }
+      if (x.equip === 'select' && !paymentValid(x)) { UI.reviewError = 'The equipment changed after payment. Pay for the updated order before submitting.'; render(); break; }
+      const T = isoTotals(x);
+      x.order = { lines: clone(x.cart), sub: T.sub, ship: x.equip === 'select' ? T.ship : 0, total: x.equip === 'select' ? T.reviewTotal : 0, paid: x.equip === 'select' ? x.payment.amount : 0 };
+      x.status = 'Submitted'; saveState(); location.hash = '#/iso/' + x.id + '/confirmation'; break;
+    }
+    // QA
+    case 'qa-bugs': QA.setBugs(d.v); break;
+    case 'qa-reset': { const s = parseInt($('#qa-seed').value, 10); QA.reset(isNaN(s) ? DEFAULT_SEED : s); toast('success', 'Data reset.'); break; }
+    case 'qa-today': QA.setToday($('#qa-today').value); toast('success', 'Business date set to ' + us(S.today) + '.'); break;
+    case 'qa-recon': UI.lastRecon = runRecon(); render(); break;
+    case 'recon-rerun': render(); toast('info', 'Checks re-run.'); break;
+  }
+}
+function onChange(e) {
+  const el = e.target; const c = el.getAttribute('data-change');
+  if (el.name === 'mode' && el.closest('form[data-filter]')) { const f = el.closest('form'); $$('.f-month, .f-year, .f-day, .f-range', f).forEach(x => { x.hidden = !x.classList.contains('f-' + el.value); }); return; }
+  if (!c) return;
+  const ap = app(parseHash().parts[1]);
+  if (c === 'overview') { UI.overviewSel = el.value; render(); }
+  else if (c === 'iso-program') { ap.program = el.value; ap.cart.forEach(l => { const it = ISO_CATALOG.find(x => x.sku === l.sku); l.price = isoPrice(ap, it); }); render(); }
+  else if (c === 'iso-search') { UI.isoSearch = el.value.trim(); render(); }
+  else if (c === 'qa-bug') { const id = el.getAttribute('data-bug'); const set = S.bugs.filter(x => x !== id); if (el.checked) set.push(id); QA.setBugs(set); }
+}
+function onSubmit(e) {
+  const f = e.target; e.preventDefault();
+  if (f.hasAttribute('data-filter')) { const v = formVals(f); go('/reports/' + f.getAttribute('data-filter'), v); return; }
+  const kind = f.getAttribute('data-form'); const v = formVals(f);
+  if (kind === 'profile') {
+    const errs = {};
+    if (!v.first) errs.first = 'First name is required.'; if (!v.last) errs.last = 'Last name is required.';
+    if (!/^\d{10}$/.test(v.phone.replace(/\D/g, ''))) errs.phone = 'Enter a 10-digit phone number.';
+    if (!v.street) errs.street = 'Address is required.'; if (!v.city) errs.city = 'City is required.';
+    if (!/^[A-Za-z]{2}$/.test(v.state)) errs.state = 'Use a 2-letter state code.'; if (!/^\d{5}$/.test(v.zip)) errs.zip = 'Enter a 5-digit ZIP code.';
+    ['first', 'last', 'phone', 'street', 'city', 'state', 'zip'].forEach(k => setErr('profile-' + k + '-error', errs[k]));
+    if (Object.keys(errs).length) { toast('error', 'Please correct the highlighted fields.'); return; }
+    Object.assign(S.profile, { first: v.first, last: v.last, phone: v.phone.replace(/\D/g, ''), street: v.street, city: v.city, state: v.state.toUpperCase(), zip: v.zip });
+    S.users[0].name = v.first + ' ' + v.last; toast('success', 'Profile updated successfully.'); render();
+  } else if (kind === 'add-user') {
+    let err = '';
+    if (!v.name || !v.email) err = 'Name and email are required.';
+    else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.email)) err = 'Enter a valid email address.';
+    else if (S.users.some(u => u.email.toLowerCase() === v.email.toLowerCase())) err = 'A user with this email already exists.';
+    if (err) { setErr('user-error', err); return; }
+    S.counters.u++; S.users.push({ id: 'U-' + S.counters.u, name: v.name, email: v.email, role: v.role, status: 'Invited' });
+    toast('success', 'Invitation sent to ' + v.email + '.'); render();
+  } else if (kind === 'password') {
+    let err = '';
+    if (v.cur !== S.password) err = 'Current password is incorrect.';
+    else if (!/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(v.nw)) err = 'New password must be at least 8 characters with a letter and a number.';
+    else if (v.nw === v.cur) err = 'New password must be different from the current password.';
+    else if (v.nw !== v.cf && !bug('BUG-12')) err = 'New password and confirmation do not match.';
+    if (err) { setErr('pw-error', err); return; }
+    S.password = v.nw; f.reset(); toast('success', 'Password changed successfully.'); saveState(); render();
+  }
+}
+
+/* ---------- QA API & boot ---------- */
+function parseBugs(v) { if (v === 'all') return BUG_IDS.slice(); if (v === 'none' || v == null || v === '') return []; return (Array.isArray(v) ? v : String(v).split(',')).map(x => String(x).trim().toUpperCase()).filter(x => BUG_IDS.indexOf(x) !== -1).filter((x, i, a) => a.indexOf(x) === i).sort(); }
+function resetAll(seed) { const keep = S ? S.bugs.slice() : null; S = freshState(seed); if (keep) S.bugs = keep; D = genData(seed); UI.tables = {}; UI.modal = null; saveState(); }
+window.QA = {
+  reset(seed) { resetAll(seed == null ? S.seed : Number(seed)); render(); return { seed: S.seed, transactions: D.txns.length, batches: D.batches.length }; },
+  getState() { return clone(S); },
+  getData() { return { transactions: D.txns.length, batches: D.batches.length, achRecords: D.ach.length, chargebacks: D.chargebacks.length, statements: clone(D.statements), range: [DATA_START, DATA_END] }; },
+  setBugs(v) { S.bugs = parseBugs(v); saveState(); render(); return S.bugs.slice(); },
+  getActiveBugs() { return S.bugs.slice(); },
+  runReconciliation() { return runRecon(); },
+  exportCsv(id) { return tableCsv(id || 'report-table'); },
+  setToday(ds) { if (!/^\d{4}-\d{2}-\d{2}$/.test(ds)) throw new Error('Use YYYY-MM-DD'); S.today = ds; saveState(); render(); return S.today; }
+};
+function boot() {
+  const sp = new URLSearchParams(location.search);
+  const seed = /^\d+$/.test(sp.get('seed') || '') ? +sp.get('seed') : null;
+  const st = loadState();
+  if (st && st.v === 3 && (seed == null || st.seed === seed)) { S = st; D = genData(S.seed); }
+  else { S = null; resetAll(seed == null ? DEFAULT_SEED : seed); if (st && st.bugs && !sp.has('bugs')) S.bugs = st.bugs; }
+  if (sp.has('bugs')) S.bugs = parseBugs(sp.get('bugs'));
+  if (/^\d{4}-\d{2}-\d{2}$/.test(sp.get('today') || '')) S.today = sp.get('today');
+  saveState();
+  document.addEventListener('click', onClick);
+  document.addEventListener('change', onChange);
+  document.addEventListener('submit', onSubmit);
+  window.addEventListener('hashchange', () => { UI.menu = false; UI.banner = null; UI.reviewError = ''; UI.modal = null; UI.isoSel = null; render(); window.scrollTo(0, 0); });
+  if (!location.hash) location.replace('#/dashboard');
+  render();
+  document.body.setAttribute('data-app-ready', 'true');
+}
+document.addEventListener('DOMContentLoaded', boot);
+
+})();
+</script>
+</body>
+</html>

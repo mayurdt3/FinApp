@@ -50,6 +50,12 @@ public class Dashboard extends BaseClass {
     @FindBy(xpath = "//a[@href='#/reports']")
     private WebElement reports;
 
+    @FindBy(css = "[data-testid='batch-total']")
+    private WebElement batchTotalElement;
+
+    @FindBy(css = "[data-testid='overview-count']")
+    private WebElement overviewCount;
+
     // ==================================================================
     // Methods
     // =================================================================
@@ -117,7 +123,6 @@ public class Dashboard extends BaseClass {
      */
     public String getBatchTotal() {
         try {
-            WebElement batchTotalElement = getOverviewItem("batch-total");
             util.waitForVisibilityOfElement(driver, batchTotalElement);
             String batchTotal = batchTotalElement.getText().trim();
 
@@ -125,34 +130,62 @@ public class Dashboard extends BaseClass {
                 throw new ValidationException("Batch total value is empty");
             }
 
-            LOG.fine("Batch Total: " + batchTotal);
             return batchTotal;
 
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "Failed to get batch total", e);
-            throw new NotFoundException("Failed to get batch total: " + e.getMessage(), e);
+            test.log(Status.FAIL, "Failed to get Batch total");
+            throw new NotFoundException("Failed to get Batch total: " + e.getMessage(), e);
         }
     }
 
     /**
-     * Get dynamically generated overview item by key.
+     * Get the Batch Total from Business Overview.
+     * This should equal the Totals Summary Total Submitted Amount when bug is OFF.
+     * Bug-01 causes Totals Summary to show gross sales instead of net (sales -
+     * refunds).
      * 
-     * @param key the data-testid key suffix
-     * @return the WebElement for the overview item
-     * @throws NotFoundException if the element is not found
+     * @return the batch total as a string
+     * @throws NotFoundException   if the batch total element is not found
+     * @throws ValidationException if the element text is empty or invalid
      */
-    private WebElement getOverviewItem(String key) {
+    public String getOverviewTransactionCount() {
         try {
-            By locator = By.cssSelector("[data-testid='overview-" + key + "']");
-            WebElement element = driver.findElement(locator);
-            return element;
-        } catch (org.openqa.selenium.NoSuchElementException e) {
-            LOG.warning("Overview item not found: " + key);
-            throw new NotFoundException("Overview item '" + key + "' not found: " + e.getMessage(), e);
+            util.waitForVisibilityOfElement(driver, overviewCount);
+            String batchTcount = overviewCount.getText().trim();
+
+            if (batchTcount == null || batchTcount.isEmpty()) {
+                throw new ValidationException("Overview Number of Transactions value is empty");
+            }
+
+            return batchTcount;
+
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "Unexpected error finding overview item: " + key, e);
-            throw new NoSuchElementException("Error finding overview item '" + key + "': " + e.getMessage(), e);
+            test.log(Status.FAIL, "Failed to get Number of Transactions");
+            throw new NotFoundException("Failed to get Number of Transactions: " + e.getMessage(), e);
         }
     }
+
+    // /**
+    // * Get dynamically generated overview item by key.
+    // *
+    // * @param key the data-testid key suffix
+    // * @return the WebElement for the overview item
+    // * @throws NotFoundException if the element is not found
+    // */
+    // private WebElement getOverviewItem(String key) {
+    // try {
+    // By locator = By.cssSelector("[data-testid='overview-" + key + "']");
+    // WebElement element = driver.findElement(locator);
+    // return element;
+    // } catch (org.openqa.selenium.NoSuchElementException e) {
+    // LOG.warning("Overview item not found: " + key);
+    // throw new NotFoundException("Overview item '" + key + "' not found: " +
+    // e.getMessage(), e);
+    // } catch (Exception e) {
+    // LOG.log(Level.SEVERE, "Unexpected error finding overview item: " + key, e);
+    // throw new NoSuchElementException("Error finding overview item '" + key + "':
+    // " + e.getMessage(), e);
+    // }
+    // }
 
 }

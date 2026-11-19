@@ -5,15 +5,9 @@ import org.openqa.selenium.WebDriver;
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
-import com.remo.PageLayer.API;
 import com.remo.PageLayer.Dashboard;
-import com.remo.PageLayer.HomePage;
-import com.remo.PageLayer.Locations;
-import com.remo.PageLayer.ProductInformationPage;
-import com.remo.PageLayer.ProfileSettingPage;
+import com.remo.PageLayer.PartnerHub;
 import com.remo.PageLayer.ReportsPage;
-import com.remo.PageLayer.SupportPage;
-import com.remo.PageLayer.Users;
 import com.remo.driverManager.DriverManager;
 import com.remo.reader.ConfigUtil;
 import com.remo.reader.ExcelFileReader;
@@ -46,15 +40,7 @@ public class BaseClass {
 	public static ExtentSparkReporter spark1;
 
 	public Dashboard dashboard;
-	public com.remo.PageLayer.LoginPage login;
-	public HomePage home;
 	public ReportsPage reportsP;
-	public API api;
-	// public MMAPI mmApi;
-	public SupportPage support;
-	public ProductInformationPage productInfo;
-	public ProfileSettingPage profile;
-	public Users user;
-	public Locations location;
+	public PartnerHub partnerH;
 
 }

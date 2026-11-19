@@ -15,14 +15,9 @@ import com.aventstack.extentreports.Status;
 import com.aventstack.extentreports.markuputils.ExtentColor;
 import com.aventstack.extentreports.markuputils.MarkupHelper;
 import com.remo.PageLayer.Dashboard;
-import com.remo.PageLayer.HomePage;
-import com.remo.PageLayer.Locations;
-import com.remo.PageLayer.LoginPage;
-import com.remo.PageLayer.ProductInformationPage;
-import com.remo.PageLayer.ProfileSettingPage;
+import com.remo.PageLayer.PartnerHub;
 import com.remo.PageLayer.ReportsPage;
-import com.remo.PageLayer.SupportPage;
-import com.remo.PageLayer.Users;
+// import com.remo.PageLayer.ReportsPage;
 import com.remo.base.BaseClass;
 import com.remo.driverManager.DriverManager;
 import com.remo.reader.ConfigUtil;
@@ -49,7 +44,7 @@ import com.remo.utility.Utility;
  */
 public class BaseTest extends BaseClass {
 
-	protected static final Logger LOG = LogManager.getLogger(BaseTest.class);
+
 
 	/**
 	 * This method sets up the WebDriver instance with the specified browser. It
@@ -82,18 +77,11 @@ public class BaseTest extends BaseClass {
 		util = new Utility();
 		prop = new ConfigUtil();
 		excel = new ExcelFileReader();
-		login = new LoginPage(driver);
-		home = new HomePage(driver);
-		reportsP = new ReportsPage(driver);
-		// mmApi= new MMAPI();
-		support = new SupportPage(driver);
-		productInfo = new ProductInformationPage(driver);
-		profile = new ProfileSettingPage(driver);
-		user = new Users(driver);
-		location = new Locations(driver);
-		dashboard = new Dashboard(driver);
 
-		
+		reportsP = new ReportsPage(driver);
+		dashboard = new Dashboard(driver);
+		partnerH = new PartnerHub(driver);
+
 	}
 
 	/**
