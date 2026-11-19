@@ -6,8 +6,8 @@
 	<parameter name="headless" value= "false" />
 	
 		<classes>
-			<class name="com.EPI.TestLayer.ReportsTest.java" /> 
-			<class name="com.EPI.TestLayer.LoginTest"/> 
+			<class name="com.remo.TestLayer.ReportsTest" /> 
+			<!-- <class name="com.remo.TestLayer.PartnerHubTest"/>  -->
 
 		</classes>
 	</test> <!-- Test -->
