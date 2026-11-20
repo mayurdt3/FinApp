@@ -849,7 +849,6 @@ public class ReportsPage extends BaseClass {
 
 	public boolean VerifyOverviewBatchTotalWithSummaryTotal() {
 
-		test = extent.createTest("Verify Business Overview details with Total Summury Report");
 
 		dashboard.selectOverviewYear(util.getCurrentYear());
 		System.out.println(dashboard.getSlectedOverview());

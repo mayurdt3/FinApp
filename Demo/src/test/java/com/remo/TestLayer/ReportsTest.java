@@ -40,7 +40,7 @@ public class ReportsTest extends BaseTest {
 
 	// }
 
-	// data integrity
+	// Reconciliation & data integrity
 	@Test(priority = 3)
 	public void verifyTotalsSummaryReportFunctionality() {
 		test = extent.createTest("Verify functionality of totals summary report");
@@ -54,6 +54,7 @@ public class ReportsTest extends BaseTest {
 
 	}
 
+	// Reconciliation
 	@Test(priority = 4)
 	public void VerifyTotalsSummaryTotalSubmittedAmountWithSearchTransactionAmounts() {
 		// reportsP.navigateToTotalsSummary();
@@ -64,6 +65,7 @@ public class ReportsTest extends BaseTest {
 
 	}
 
+	// Reconciliation
 	@Test(priority = 5)
 	public void VerifyBatchTransactionCountWithSettledBatchCount() {
 		reportsP.navigateToSearchTransactions();
@@ -74,6 +76,7 @@ public class ReportsTest extends BaseTest {
 
 	}
 
+	// data integrity
 	@Test(priority = 6)
 	public void VerifyOverviewBatchTotalWithSummaryTotalSubmittedAmount() {
 
@@ -86,6 +89,7 @@ public class ReportsTest extends BaseTest {
 
 	}
 
+	// data integrity
 	@Test(priority = 7)
 	public void VerifyACHTransactionDataAndRecords() {
 		test = extent.createTest(" Verify ACH Deposit report");
