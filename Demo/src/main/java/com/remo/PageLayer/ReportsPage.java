@@ -10,6 +10,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.smartcardio.Card;
+import javax.xml.bind.ValidationException;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
@@ -20,7 +22,6 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-
 
 import com.remo.base.BaseClass;
 import com.remo.utility.Utility;
@@ -45,10 +46,9 @@ public class ReportsPage extends BaseClass {
 		PageFactory.initElements(driver, this);
 	}
 
-
-    // ==================================================================
-    // Web Elements for reports page
-    // ==================================================================
+	// ==================================================================
+	// Web Elements for reports page
+	// ==================================================================
 	@FindBy(xpath = "//div[@class='rcard']//div[@class='rt']")
 	private List<WebElement> allReports;
 
@@ -152,8 +152,6 @@ public class ReportsPage extends BaseClass {
 
 	@FindBy(css = "[data-testid='ach-included-total-total']")
 	private WebElement achachTotalAmount;
-
-
 
 	// /**
 	// * WebElements For Reports Page
@@ -929,8 +927,6 @@ public class ReportsPage extends BaseClass {
 
 		String month = util.getMonthShortName(1);
 		String year = util.getCurrentYear();
-
-		test = extent.createTest("Verify ACH Deposit Report");
 		navigateToAchDeposit();
 		filterByMonth(month, year);
 		util.waitForVisibilityOfAllElements(driver, achAmountList);
@@ -944,9 +940,10 @@ public class ReportsPage extends BaseClass {
 		// List<WebElement> links = td.findElements(By.tagName("a"));
 		// mappedLinks.add(links.isEmpty() ? null : links.get(0));
 		// }
-		boolean flag = true;
+		// boolean flag = true;
 		int fail = 0;
-		for (int i = 0; i < achAmountList.size() - 1; i++) {
+		int list = achAmountList.size() - 1;
+		for (int i = 0; i < list; i++) {
 			util.waitForVisibilityOfAllElements(driver, achAmountList);
 			Long ACHamount = parseMoneyToCents(achAmountList.get(i).getText());
 			String Date = achDatelist.get(i).getText();
@@ -1016,7 +1013,6 @@ public class ReportsPage extends BaseClass {
 		}
 
 	}
-
 
 	/**
 	 * Navigates to Totals summary report,

@@ -86,11 +86,9 @@ public class ReportsTest extends BaseTest {
 
 	}
 
-	@Test(priority = 6)
+	@Test(priority = 7)
 	public void VerifyACHTransactionDataAndRecords() {
 		test = extent.createTest(" Verify ACH Deposit report");
-
-		test = extent.createTest(" Verify card-type totals = deposit amount");
 
 		SoftAssert a = new SoftAssert();
 		a.assertTrue(reportsP.verifyACHDepositReportTransactionData());
